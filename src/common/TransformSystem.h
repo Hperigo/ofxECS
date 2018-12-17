@@ -18,7 +18,7 @@ struct TransformSystem : ecs::System{
         auto& transforms = getManager()->getComponentsArray<Transform>();
         for(auto& t : transforms){
             
-            if(t->needsUpdate()){
+            if(t->needsUpdate() && !t->hasParent()){
                 t->updateMatrices();
             }
         }

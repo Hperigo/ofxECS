@@ -42,6 +42,8 @@ namespace ecs {
         bool isDrawable(){
             return drawable;
         }
+        
+        void drawAtTop();
 
         size_t listPositionIndex = -1;
         
@@ -112,6 +114,8 @@ namespace ecs {
 
             }
         }
+        
+        void swapDrawablesOrder(IDrawable* a, IDrawable* b);
         
         int getDrawableCount(){
             return mDrawables.size();

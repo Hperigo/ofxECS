@@ -55,6 +55,13 @@ void IDrawable::setDrawTarget( std::shared_ptr<ecs::DrawTarget> iDrawTarget){
     
 }
 
+void IDrawable::drawAtTop(){
+    
+    if( drawTargetOwner ){
+        drawTargetOwner->removeDrawable(this);
+        drawTargetOwner->addDrawable(this);
+    }
+}
 
 IDrawable::~IDrawable(){
     
@@ -63,3 +70,13 @@ IDrawable::~IDrawable(){
     }
 }
 
+
+
+void DrawTarget::swapDrawablesOrder(IDrawable* a, IDrawable* b){
+    
+    auto aIt = std::find(mDrawables.begin(), mDrawables.end(), a);
+    auto bIt = std::find(mDrawables.begin(), mDrawables.end(), b);
+    
+    std::swap(aIt, bIt);
+    
+}

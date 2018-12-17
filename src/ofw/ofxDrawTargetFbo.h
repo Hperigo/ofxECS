@@ -9,6 +9,7 @@
 #define DrawTargetFbo_h
 
 #include "Drawables.hpp"
+#include "ofGraphics.h"
 #include "ofFbo.h"
 
 

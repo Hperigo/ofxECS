@@ -51,6 +51,7 @@ Transform::~Transform(){
 void Transform::updateMatrices(bool emitSignal){
     
     // TODO: Cache the matrices transformss
+//    std::cout << "id : " << getId() << std::endl;
     
     glm::mat4 transform;
     transform *= glm::translate<float>(mat4(), localPos + anchorPoint);
@@ -62,15 +63,18 @@ void Transform::updateMatrices(bool emitSignal){
     
     if(parent)
     {
-        mWorldTransform = parent->getWorldTransform() * mCTransform;
+        mWorldTransform = parent->mWorldTransform * mCTransform;
     }else{
         mWorldTransform = mCTransform;
     }
 
     mNeedsUpdate = false;
     
-    for(auto& c : children){
-        c->updateMatrices();
+    
+    if( emitSignal ){
+        for(auto& c : children){
+            c->updateMatrices();
+        }
     }
     
 }
@@ -82,11 +86,8 @@ void Transform::setCTransform(const mat4 &transform){
     mCTransform = transform;
     if(parent)
     {
-        
-        mWorldTransform = parent->getWorldTransform() * mCTransform;
-        
+        mWorldTransform = parent->mWorldTransform * mCTransform;
     }else{
-        
         mWorldTransform = mCTransform;
     }
     
@@ -111,7 +112,7 @@ void Transform::setWorldPos(const vec3& pos){
     
     if(parent)
     {
-        auto newP = glm::inverse(parent->getWorldTransform()) * glm::vec4(pos, 1);
+        auto newP = glm::inverse(parent->mWorldTransform) * glm::vec4(pos, 1);
         localPos = newP;
     }else{
         localPos = pos;
@@ -208,13 +209,14 @@ void Transform::setParent( Transform* _parent, bool keepWorldCTransform)
     }
     
     parent = _parent;
-    parent->addChildToList( this );
     
     if( keepWorldCTransform ){
         setWorldPos( localPos );
         setWorldScale(localScale);
         setWorldRotation(mRotation);
     }
+    
+    parent->addChildToList( this );
     
     mNeedsUpdate = true;
 }

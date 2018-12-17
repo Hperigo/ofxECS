@@ -57,7 +57,7 @@ public:
     glm::vec3 getPos()  {
         
         if(needsUpdate()){
-            updateMatrices(false);
+            updateMatrices();
         }
         return localPos;
         
@@ -85,7 +85,7 @@ public:
     glm::vec3 getScale()  {
         
         if(needsUpdate()){
-            updateMatrices(false);
+            updateMatrices();
         }
         
         return localScale;
@@ -109,7 +109,7 @@ public:
     glm::quat getRotation() {
         
         if(needsUpdate()){
-            updateMatrices(false);
+            updateMatrices();
         }
         
         return mRotation;
@@ -118,7 +118,7 @@ public:
     float getRotationRadians()  {
         
         if(needsUpdate()){
-            updateMatrices(false);
+            updateMatrices();
         }
         
         return glm::eulerAngles(mRotation).z;
@@ -131,7 +131,7 @@ public:
     // Parenting ----
     
     
-    void setParent( Transform* _parent, bool keepWordCTransform = true );
+    void setParent( Transform* _parent, bool keepWordCTransform = false );
     void removeParent(bool keepWorldCTransform = true, bool removeFromList = false);
     
     Transform* getParent() const { return parent; }
@@ -167,7 +167,7 @@ public:
     size_t getId() const { return mId; }
     void setId(size_t i){ mId = i; }
     
-    void updateMatrices(bool emitSignal = true);
+    void updateMatrices(bool updateChildren = true);
     
     void setAlwaysUpdate( bool v ){  mAlwaysUpdate = v; }
     bool getAlwaysUpdate(){ return mAlwaysUpdate; }
