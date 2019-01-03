@@ -9,6 +9,8 @@
 #include <bitset>
 #include <array>
 #include <vector>
+#include <functional>
+#include <assert.h>  
 #include "Component.h"
 
 

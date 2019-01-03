@@ -76,12 +76,15 @@ namespace ecs {
         
         // actually draw stuff
         virtual void draw(){
-            
+			_drawCalls = 0;
             // set matrices, bind FBO etc...
             for(auto d : mDrawables){
                 if(d->isDrawable())
                 {
+					
+					_drawCalls += 1;
                     d->draw();
+
                 }
             }
         }
@@ -94,7 +97,6 @@ namespace ecs {
             iDrawable->drawTargetId = mDrawables.size();
             iDrawable->drawTargetOwner = this;
             mDrawables.push_back( iDrawable );
-            
             iDrawable->listPositionIndex = mDrawables.size() - 1 ;
         }
         
@@ -120,14 +122,23 @@ namespace ecs {
         int getDrawableCount(){
             return mDrawables.size();
         }
-        
-        std::vector<IDrawable*> mDrawables;
+
+
+		int getNumOfDrawCalls() {
+			return _drawCalls;
+		}
+
         
     protected:
-        
+
+		std::vector<IDrawable*> mDrawables;
+
         uint32_t _id;
         static uint32_t id_count;
         
+
+
+		uint32_t _drawCalls = 0;
         friend class DrawSystem;
     };
 
