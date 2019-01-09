@@ -34,7 +34,7 @@ namespace ecs{
     public:
 
         Entity( ) {
-            mEntityId = mNumOfEntities;
+//            mEntityId = mNumOfEntities;
             mNumOfEntities += 1;
             mComponentArray.fill(nullptr);
         }

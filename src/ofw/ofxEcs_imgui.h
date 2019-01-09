@@ -18,6 +18,8 @@ namespace ImGui{
     
     inline bool EcsTransform( Transform * t ){
         
+        ImGui::Text("Entity id: %u", t->getEntity()->getId() );
+        
         bool b = false;
         b |= ImGui::DragFloat3("position", &(t->getPosPtr()->x));
         b |= ImGui::DragFloat3("anchor", &(t->getAnchorPointPtr()->x));

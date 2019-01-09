@@ -15,7 +15,7 @@ unsigned int Entity::mNumOfEntities = 0;
 
 void Entity::addComponentToManager( ComponentID cId, const ComponentRef& component){
 
-    mManager->addComponent( cId, component );
+    mManager->addComponent(getId(), cId, component );
 
     mComponentArray[cId] = component.get();
     mComponentBitset[cId] = true;

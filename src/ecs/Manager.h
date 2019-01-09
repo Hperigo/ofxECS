@@ -10,6 +10,7 @@
 #include "System.h"
 
 #include <vector>
+#include <stack>
 #include <array>
 
 
@@ -38,7 +39,19 @@ public:
         e->mManager = this;
         e->mFactory = std::make_shared< internal::EntityInfoBase >();
         
-        mEntities.emplace_back(e);
+        uint64_t eId = 99999999;
+        if( getId( &eId ) ){
+            
+            e->mEntityId = eId;
+            mEntities[eId] = e;
+            
+        }else{
+            e->mEntityId = mEntities.size();
+            mEntities.emplace_back(e);
+        }
+        
+        resizeComponentVector();
+        
         if( e->onSetup ){
             e->onSetup();
         }
@@ -52,7 +65,18 @@ public:
         std::shared_ptr<T> e = std::make_shared<T>( std::forward<Args>(args)...  );
         e->mManager = this;
         e->mFactory = std::make_shared< EntityHelper<T> >();
-        mEntities.emplace_back(e);
+        
+        uint64_t eId = -1;
+        if( getId( &eId ) ){
+            
+            e->mEntityId = eId;
+            mEntities[eId] = e;
+            
+        }else{
+            e->mEntityId = mEntities.size();
+            mEntities.emplace_back(e);
+
+        }
         
         if( e->onSetup ){
             e->onSetup();
@@ -75,7 +99,7 @@ public:
         return  rawSystem;
     }
 
-    void removeSystem(  SystemRef iSystem){
+    void removeSystem(SystemRef iSystem){
         
         auto sys = std::find( mSystems.begin(), mSystems.end(), iSystem );
 
@@ -132,46 +156,69 @@ public:
             
             // erase components
             int j = 0;
-            for( auto cIt = componentVector.begin(); cIt != componentVector.end(); ) {
+            for( auto cIt = componentVector.begin(); cIt != componentVector.end(); ++cIt) {
+                
+                if( (*cIt) == nullptr ){
+                    continue;
+                }
+                
                 auto e = (*cIt)->getEntity();
-
-                if( e == nullptr || !e->isAlive() ){
-                    
+                assert( e != nullptr );
+                
+                if( !e->isAlive() ){
                     (*cIt)->onDestroy();
-                    cIt = componentVector.erase(cIt);
-
-                }else{
-                    cIt++;
+                    //cIt = componentVector.erase(cIt);
+                    (*cIt).reset();
                 }
                 
                 j++;
             }
             
-            
             mComponentsByType[i].clear();
             for(auto cp :  componentVector){
-                mComponentsByType[i].push_back( cp.get() );
+                if(cp != nullptr){
+                    mComponentsByType[i].push_back( cp.get() );
+                }
             }
         }
         
-        for( auto eIt = mEntities.begin(); eIt != mEntities.end();  ){
-
-            if( ! (*eIt)->isAlive() || (*eIt == nullptr)  )
-            {
-                eIt = mEntities.erase( eIt );
+        for( auto eIt = mEntities.begin(); eIt != mEntities.end(); ++eIt){
+            
+            if( *eIt == nullptr ){
+                continue;
             }
             
-            else
+            if( ! (*eIt)->isAlive() )
             {
-                ++eIt;
+                idPool.push((*eIt)->getId());
+                (*eIt).reset();
+                //                eIt = mEntities.erase( eIt );
             }
         }
         needsRefresh = false;
     }
 
-    void addComponent( ComponentID id, const ComponentRef component){
-        mComponents[id].push_back( component );
-        mComponentsByType[id].push_back( component.get() );
+    void addComponent(uint64_t entityId, ComponentID id, const ComponentRef component){
+        
+
+        auto& componentVector = mComponents[id];
+        auto& componentVectorByType = mComponentsByType[id];
+        
+        if( entityId >= componentVector.size() ){
+            componentVector.push_back( component );
+            componentVectorByType.push_back( component.get() );
+        }else{
+            
+            componentVector[entityId] = component;
+            componentVectorByType.push_back( component.get() );
+//            componentVectorByType.clear();
+//            for(auto cp :  componentVector){
+//                if(cp != nullptr){
+//                    componentVectorByType.push_back( cp.get() );
+//                }
+//            }
+        }
+
     }
 
 
@@ -240,6 +287,10 @@ public:
         std::vector<std::shared_ptr<Entity>> entities;
         for( auto &e : mEntities ){
             
+            if( e == nullptr ){
+                continue;
+            }
+            
             bool b = ( e->getComponentBitset() | bitsetMask  ) == e->getComponentBitset(); // check if entity has all the bits in the bitset mask
             if( b ){
                  entities.push_back( e );
@@ -275,14 +326,87 @@ public:
     }
     
     
-    std::vector<EntityRef>& getEntities() {  return mEntities; }
+    std::vector<EntityRef> getEntities() {
+        
+        std::vector<EntityRef> output;
+        for( auto &e : mEntities ){
+            
+            if( e == nullptr ){
+                continue;
+            }
+            
+            output.push_back(e);
+        }
+        
+        return output;
+    }
     std::vector<SystemRef>& getSystems() { return mSystems; }
+    
+    
+    void printCheck() {
+        
+        cout << "\n\n\n.stack: ";
+        auto pool = idPool;
+        while( pool.size() != 0 ){
+            auto i = pool.top();
+            pool.pop();
+            cout << i << ",";
+        }
+        cout << endl;
+        
+        cout << "last id is: " << internal::lastID << endl;
+        
+        // print entities id's
+        cout << "enti: ";
+        for( int i = 0; i < mEntities.size(); i++){
+            
+            if( mEntities[i] == nullptr ){
+                cout << "*" << " | ";
+            }else{
+                cout << i << " | ";
+            }
+
+        }
+        cout << endl;
+
+        cout << "------";
+        for( int i = 0; i < mEntities.size(); i++){
+            cout << "----";
+        }
+        cout << endl;
+
+        // print valid components
+        for( int i = 0; i < internal::lastID; i++){
+            cout << "c: " << i << "> ";
+        
+            for( int j = 0; j < mComponents[i].size(); j++){
+                auto c = mComponents[i][j];
+                bool valid = c != nullptr;
+                cout << valid << " | ";
+            }
+            cout << "_" << endl;
+        }
+        
+        cout << "\n\n\n\n";
+    }
+    
+    
+    
     
     
 protected:
 
-    bool needsRefresh{false};
+    std::stack<uint64_t> idPool;
+    bool getId(uint64_t* outputID);
+    void resizeComponentVector(){
+        
+        for(int i = 0; i < internal::lastID; i++){
+            mComponents[i].resize( mEntities.size() );
+        }
+        
+    }
     
+    bool needsRefresh{false};
     std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
     
     //we use this to cast a whole vector at once, only possible with a raw pointer
