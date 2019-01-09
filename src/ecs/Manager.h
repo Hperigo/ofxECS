@@ -43,12 +43,9 @@ public:
             e->onSetup();
         }
         e->setup();
-        
-
         return e;
     }
-
-
+    
     template<typename T, typename... Args>
     std::shared_ptr<T> createEntity(Args&&... args){
 
@@ -101,15 +98,10 @@ public:
         update();
     }
 
-
     void update(){
-
-//        if( needsRefresh == true ){
-//        }
-
+        
         refresh();
 
-        
         for(auto& sys  : mSystems){
             
             if( sys->updatable ){
@@ -293,7 +285,6 @@ protected:
     
     std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
     
-    
     //we use this to cast a whole vector at once, only possible with a raw pointer
     // TODO: make this the main array, not a copy, by using `new` and `delete`
     std::array< std::vector<Component*>, MaxComponents> mComponentsByType;
@@ -301,12 +292,7 @@ protected:
     std::vector<EntityRef> mEntities;
     std::vector<SystemRef> mSystems;
 
-    
     friend class Entity;
 };
-
-
 }
-
-
 #endif //LEKSAPP_MANAGER_H

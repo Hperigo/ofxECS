@@ -143,7 +143,7 @@ public:
     Transform* getRoot();
     
     bool isRoot()const { return ( !hasParent() ) ? true : false; }
-    bool isLeaf()const { return (children.size() == 0 && hasParent()) ? true : false; }
+    bool isLeaf()const { return (children.size() == 0) ? true : false; }
     
     bool removeChildFromList(Transform* child);
     bool addChildToList(Transform* child);
