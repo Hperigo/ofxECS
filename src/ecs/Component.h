@@ -53,6 +53,7 @@ namespace ecs{
     struct Component {
 
     public:
+        virtual ~Component() { }
         virtual void setup() { };
         virtual void drawUi() { };
         virtual void onDestroy(){ };

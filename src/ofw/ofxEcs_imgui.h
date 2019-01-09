@@ -61,8 +61,6 @@ namespace ImGui{
                 out  = root;
             }
             
-            
-            
             if( !root->isLeaf() ){
                 
                 bool nodeOpen =  ImGui::TreeNodeEx((void*)(intptr_t)rootId, node_flags, "id: %lu", rootId);

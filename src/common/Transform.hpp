@@ -27,16 +27,7 @@ public:
     Transform( const Transform& other );
     ~Transform();
     
-    void onDestroy() override {
-        
-        // clean up children
-        if( children.size() > 0 ){
-            for( auto& c : children ){
-                c->removeParent(false, false);
-            }
-        }
-    }
-    
+    void onDestroy() override;
     
     void setCTransform(const glm::mat4& transform );
     
@@ -129,10 +120,8 @@ public:
     float getWorldRotationRadians()  { return glm::eulerAngles( getWorldRotation() ).z; }
     
     // Parenting ----
-    
-    
     void setParent( Transform* _parent, bool keepWordCTransform = false );
-    void removeParent(bool keepWorldCTransform = true, bool removeFromList = false);
+    void removeParent(bool keepWorldCTransform = true, bool removeFromList = true);
     
     Transform* getParent() const { return parent; }
     
@@ -153,7 +142,8 @@ public:
     
     Transform* getRoot();
     
-    bool isLeaf()const { return children.size() == 0 ? true : false; }
+    bool isRoot()const { return ( !hasParent() ) ? true : false; }
+    bool isLeaf()const { return (children.size() == 0 && hasParent()) ? true : false; }
     
     bool removeChildFromList(Transform* child);
     bool addChildToList(Transform* child);

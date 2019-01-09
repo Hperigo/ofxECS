@@ -19,9 +19,10 @@
 class TextureEntity : public ecs::Entity, public ecs::IDrawable {
     
 public:
-    
-    
-    TextureEntity(  ){
+    ~TextureEntity(){
+        
+    }
+    TextureEntity(){
         
     }
     
@@ -30,14 +31,14 @@ public:
         this->onSetup = [&, path]{
             
             addComponent<ofTexture>();
+            addComponent<Transform>();
             loadTexture( path );
         };
     }
     
     
     void setup() override  {
-        
-        addComponent<Transform>();
+
     }
     
     

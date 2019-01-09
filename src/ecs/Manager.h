@@ -13,6 +13,9 @@
 #include <array>
 
 
+#include <iostream>
+using namespace std;
+
 namespace  ecs{
     using ManagerRef = std::shared_ptr<class Manager>;
 
@@ -20,14 +23,9 @@ class Manager {
 
 
 public:
-    Manager(){
-        
-    }
+    Manager(){ }
     
-    ~Manager(){
-
-    }
-
+    ~Manager(){ }
 
     template<typename... Args>
     static ManagerRef create(Args&&... args){
@@ -106,11 +104,12 @@ public:
 
     void update(){
 
-        if( needsRefresh == true ){
-            refresh();
-        }
+//        if( needsRefresh == true ){
+//        }
 
+        refresh();
 
+        
         for(auto& sys  : mSystems){
             
             if( sys->updatable ){
@@ -130,26 +129,30 @@ public:
 
 
     void refresh() {
-
+    
         if( !needsRefresh ){
             return;
         }
-
-    
+        
         for( std::size_t i = 0; i < mComponents.size(); ++i ){
 
-
             auto& componentVector(mComponents[i]);
-
+            
             // erase components
+            int j = 0;
             for( auto cIt = componentVector.begin(); cIt != componentVector.end(); ) {
-                
-                if( (*cIt)->getEntity() != nullptr || !(*cIt)->getEntity()->isAlive() ){
+                auto e = (*cIt)->getEntity();
+
+                if( e == nullptr || !e->isAlive() ){
+                    
                     (*cIt)->onDestroy();
                     cIt = componentVector.erase(cIt);
+
                 }else{
-                    ++cIt;
+                    cIt++;
                 }
+                
+                j++;
             }
             
             
@@ -289,6 +292,8 @@ protected:
     bool needsRefresh{false};
     
     std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
+    
+    
     //we use this to cast a whole vector at once, only possible with a raw pointer
     // TODO: make this the main array, not a copy, by using `new` and `delete`
     std::array< std::vector<Component*>, MaxComponents> mComponentsByType;

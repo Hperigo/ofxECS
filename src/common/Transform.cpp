@@ -40,18 +40,29 @@ Transform::Transform( const Transform& other ){
     updateMatrices();
 }
 
+
+void Transform::onDestroy() {
+ 
+    // clean up children
+    if( children.size() > 0 ){
+        for( auto& c : children ){
+            c->removeParent(false, true);
+        }
+    }
+    
+    if(hasParent()){
+        removeParent(false, true);
+    }
+}
+
 Transform::~Transform(){
-    
-    
     children.clear();
-    
 }
 
 
 void Transform::updateMatrices(bool emitSignal){
     
     // TODO: Cache the matrices transformss
-//    std::cout << "id : " << getId() << std::endl;
     
     glm::mat4 transform;
     transform *= glm::translate<float>(mat4(), localPos + anchorPoint);
@@ -204,10 +215,9 @@ glm::quat Transform::getWorldRotation() {
 void Transform::setParent( Transform* _parent, bool keepWorldCTransform)
 {
     
-    if( _parent->getId() == mId){
-        return;
-    }
-    
+    // ASSERT, you cannot asign this transform parent to it self
+    assert( (_parent->getId() != mId ) );
+
     parent = _parent;
     
     if( keepWorldCTransform ){
@@ -222,14 +232,14 @@ void Transform::setParent( Transform* _parent, bool keepWorldCTransform)
 }
 
 
+//
 void Transform::removeParent(bool keepWordCTransform, bool removeFromList){
     
-    if( removeFromList ){
-        parent->removeChildFromList( this );
-    }
+    if(removeFromList)
+        parent->removeChildFromList(this);
+    
     //TODO clenup
     auto p = parent;
-    
     if(p && keepWordCTransform){
         
         auto newPos =  mWorldTransform * vec4(0,0, 0, 1);
@@ -244,7 +254,6 @@ void Transform::removeParent(bool keepWordCTransform, bool removeFromList){
     }
     
     parent = nullptr;
-    
     mNeedsUpdate = true;
 }
 
@@ -289,17 +298,15 @@ bool Transform::hasChild(const Transform* child, bool recursive ){
 
 
 bool Transform::removeChildFromList( Transform* child){
-    
+    cout << "will remove " << endl;
     auto findIt = findChild(child);
     
     if( findIt ){
-        
         auto rmFn = [child](const Transform* t ) -> bool{
             return child == t;
         };
         
         children.erase(  std::remove_if( children.begin(), children.end(), rmFn ), children.end() );
-        
         return true;
     }
     return false;

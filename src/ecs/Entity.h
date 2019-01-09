@@ -40,7 +40,9 @@ namespace ecs{
         }
 
         virtual ~Entity(){
-            markRefresh();
+            if(isAlive()){
+                markRefresh();
+            }
         }
 
         bool isAlive() const { return mIsAlive; }
@@ -67,7 +69,7 @@ namespace ecs{
         template <class T,
         typename std::enable_if< !std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* addComponent() {
-           
+            assert(!hasComponent<T>());
             std::shared_ptr<WrapperComponent<T>> rawComponent( new WrapperComponent<T>( T() ) );
             
             auto cId = getComponentTypeID<WrapperComponent<T>>();
@@ -85,7 +87,9 @@ namespace ecs{
         template <class T,
         typename std::enable_if< std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* addComponent() {
-        
+            
+            assert(!hasComponent<T>());
+            
             std::shared_ptr<T> rawComponent( new T() );
             
             auto cId = getComponentTypeID<T>();
