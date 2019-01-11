@@ -25,7 +25,7 @@ namespace ecs{
 
     namespace internal{
         struct EntityInfoBase{
-            virtual void copyInto(const EntityRef& source, EntityRef& target);
+            virtual void copyInto(const Entity* source, EntityRef& target);
         };
     }
     
@@ -33,8 +33,7 @@ namespace ecs{
 
     public:
 
-        Entity( ) {
-//            mEntityId = mNumOfEntities;
+        Entity() {
             mNumOfEntities += 1;
             mComponentArray.fill(nullptr);
         }
@@ -196,7 +195,7 @@ namespace ecs{
         
         Manager* getManager() { return mManager; }
         
-        std::shared_ptr<internal::EntityInfoBase> getFactory(){ return mFactory; };
+        std::shared_ptr<internal::EntityInfoBase> getFactory() const { return mFactory; };
         
         
         
@@ -232,9 +231,11 @@ namespace ecs{
     template<class T>
     struct EntityHelper :  public internal::EntityInfoBase{
         
-        void copyInto( const EntityRef& source, EntityRef& target) override{
-            target = std::make_shared<T>(  *std::static_pointer_cast<T>( source ) );
+        void copyInto( const Entity* source, EntityRef& target) override{
+            auto t = *std::static_pointer_cast<T>( source );
+            target = std::make_shared<T>( t );
         }
+    
     };
     
 }

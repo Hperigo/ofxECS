@@ -32,8 +32,7 @@ void Entity::markRefresh(){
 }
 
 
-void internal::EntityInfoBase::copyInto(const EntityRef& source, EntityRef& target){
-    
+void internal::EntityInfoBase::copyInto(const Entity* source, EntityRef& target){
     target = std::make_shared<Entity>( *source );
 }
 

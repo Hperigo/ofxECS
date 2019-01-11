@@ -41,16 +41,7 @@ public:
         e->mManager = this;
         e->mFactory = std::make_shared< internal::EntityInfoBase >();
         
-        uint64_t eId = 99999999;
-        if( getId( &eId ) ){
-            
-            e->mEntityId = eId;
-            mEntities[eId] = e;
-            
-        }else{
-            e->mEntityId = mEntities.size();
-            mEntities.emplace_back(e);
-        }
+        addEntityToPool(e);
         
         resizeComponentVector();
         
@@ -68,17 +59,7 @@ public:
         e->mManager = this;
         e->mFactory = std::make_shared< EntityHelper<T> >();
         
-        uint64_t eId = -1;
-        if( getId( &eId ) ){
-            
-            e->mEntityId = eId;
-            mEntities[eId] = e;
-            
-        }else{
-            e->mEntityId = mEntities.size();
-            mEntities.emplace_back(e);
-
-        }
+        addEntityToPool(e);
         
         if( e->onSetup ){
             e->onSetup();
@@ -123,7 +104,8 @@ public:
         
         if( entityId >= componentVector.size() ){
             
-            componentVector.push_back( component );
+            resizeComponentVector();
+            componentVector[entityId] = component;
             componentVectorByType.push_back( component.get() );
             
         }else{
@@ -194,12 +176,42 @@ public:
         return entities;
     };
     
+    EntityRef copyEntity( const Entity* iEntity ){
+        EntityRef e;
+        iEntity->getFactory()->copyInto( iEntity, e );
+        
+        addEntityToPool(e);
+        
+        for(size_t i = 0; i < e->mComponentBitset.size(); ++i){
+            
+            if(  e->mComponentBitset[i] == true ){
+                
+                cout << "will add: " << i << endl;
+
+
+                auto sourceComponent = e->mComponentArray[i];
+                ComponentRef targetComponent;  //= std::make_shared<Component>( *sourceComponent );
+                
+                sourceComponent->getFactory()->copyInto( sourceComponent, targetComponent );
+                targetComponent->mEntity = e.get();
+                
+                addComponent( e->getId(), i, targetComponent );
+
+                
+//                mComponents[i].push_back(  targetComponent );
+//                e->mComponentArray[i] = mComponents[i].back().get();
+            }
+        }
+        
+        printCheck();
+        
+        return e;
+    }
+    
     EntityRef copyEntity( const EntityRef& iEntity ){
         
         EntityRef e;
-        
-        iEntity->getFactory()->copyInto( iEntity, e );
-        
+        iEntity->getFactory()->copyInto( iEntity.get(), e );
         mEntities.push_back(e);
         
         for(size_t i = 0; i < e->mComponentBitset.size(); ++i){
@@ -293,6 +305,20 @@ protected:
     std::queue<uint64_t> idPool;
     bool getId(uint64_t* outputID);
     const int resizePool = 500;
+    
+    void addEntityToPool( EntityRef e ) {
+        
+        uint64_t eId = -1;
+        if( getId( &eId ) ){
+            
+            e->mEntityId = eId;
+            mEntities[eId] = e;
+            
+        }else{
+            e->mEntityId = mEntities.size();
+            mEntities.emplace_back(e);
+        }
+    }
     
     void resizeEntityBuffer(){
         

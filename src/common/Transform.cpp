@@ -23,16 +23,16 @@ Transform::Transform( const vec3& pos_ ) : localPos(pos_){
     mId = transformId;
     transformId++;
     
-    
 }
 
 Transform::Transform( const Transform& other ){
     
+    mId = transformId;
+    transformId++;
     
     localPos = other.localPos;
     rotation = other.rotation;
     localScale = other.localScale;
-    
     
     if( other.hasParent() ){
         this->setParent( other.getParent() );
