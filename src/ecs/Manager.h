@@ -186,9 +186,6 @@ public:
             
             if(  e->mComponentBitset[i] == true ){
                 
-                cout << "will add: " << i << endl;
-
-
                 auto sourceComponent = e->mComponentArray[i];
                 ComponentRef targetComponent;  //= std::make_shared<Component>( *sourceComponent );
                 
@@ -197,9 +194,6 @@ public:
                 
                 addComponent( e->getId(), i, targetComponent );
 
-                
-//                mComponents[i].push_back(  targetComponent );
-//                e->mComponentArray[i] = mComponents[i].back().get();
             }
         }
         
@@ -209,25 +203,7 @@ public:
     }
     
     EntityRef copyEntity( const EntityRef& iEntity ){
-        
-        EntityRef e;
-        iEntity->getFactory()->copyInto( iEntity.get(), e );
-        mEntities.push_back(e);
-        
-        for(size_t i = 0; i < e->mComponentBitset.size(); ++i){
-            
-            if(  e->mComponentBitset[i] == true ){
-                
-                ComponentRef targetComponent;
-                auto sourceComponent = e->mComponentArray[i];
-                sourceComponent->getFactory()->copyInto( sourceComponent, targetComponent );
-                targetComponent->mEntity = e.get();
-                mComponents[i].push_back(  targetComponent );
-                e->mComponentArray[i] = mComponents[i].back().get();
-            }
-        }
-        
-        return e;
+        return copyEntity(iEntity.get());
     }
     
     

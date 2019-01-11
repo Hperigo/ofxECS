@@ -31,6 +31,9 @@ void Entity::markRefresh(){
     mManager->needsRefresh = true;
 }
 
+EntityRef Entity::duplicate(){
+    return mManager->copyEntity(this);
+}
 
 void internal::EntityInfoBase::copyInto(const Entity* source, EntityRef& target){
     target = std::make_shared<Entity>( *source );

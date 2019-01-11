@@ -43,7 +43,9 @@ namespace ecs{
                 markRefresh();
             }
         }
-
+        
+        EntityRef duplicate();
+        
         bool isAlive() const { return mIsAlive; }
         virtual  void destroy() {
             mIsAlive = false;
