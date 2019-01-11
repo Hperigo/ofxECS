@@ -10,7 +10,7 @@
 #include "System.h"
 
 #include <vector>
-#include <stack>
+#include <queue>
 #include <array>
 
 
@@ -24,7 +24,9 @@ class Manager {
 
 
 public:
-    Manager(){ }
+    Manager(){
+    
+    }
     
     ~Manager(){ }
 
@@ -108,139 +110,30 @@ public:
         }
     }
 
-    void setup(){
-
-
-        if( needsRefresh == true ){
-            refresh();
-        }
-
-        for(auto& sys  : mSystems){
-            sys->setup();
-        }
-        
-        update();
-    }
-
-    void update(){
-        
-        refresh();
-
-        for(auto& sys  : mSystems){
-            
-            if( sys->updatable ){
-                sys->update();
-            }
-        }
-    }
-
-    void draw(){
-
-        for(auto& sys  : mSystems){
-            if( sys->drawable ){
-                sys->draw();
-            }
-        }
-    }
-
-
-    void refresh() {
+    void setup();
+    void update();
+    void draw();
     
-        if( !needsRefresh ){
-            return;
-        }
-        
-        for( std::size_t i = 0; i < mComponents.size(); ++i ){
-
-            auto& componentVector(mComponents[i]);
-            
-            // erase components
-            int j = 0;
-            for( auto cIt = componentVector.begin(); cIt != componentVector.end(); ++cIt) {
-                
-                if( (*cIt) == nullptr ){
-                    continue;
-                }
-                
-                auto e = (*cIt)->getEntity();
-                assert( e != nullptr );
-                
-                if( !e->isAlive() ){
-                    (*cIt)->onDestroy();
-                    //cIt = componentVector.erase(cIt);
-                    (*cIt).reset();
-                }
-                
-                j++;
-            }
-            
-            mComponentsByType[i].clear();
-            for(auto cp :  componentVector){
-                if(cp != nullptr){
-                    mComponentsByType[i].push_back( cp.get() );
-                }
-            }
-        }
-        
-        for( auto eIt = mEntities.begin(); eIt != mEntities.end(); ++eIt){
-            
-            if( *eIt == nullptr ){
-                continue;
-            }
-            
-            if( ! (*eIt)->isAlive() )
-            {
-                idPool.push((*eIt)->getId());
-                (*eIt).reset();
-                //                eIt = mEntities.erase( eIt );
-            }
-        }
-        needsRefresh = false;
-    }
+    void refresh();
 
     void addComponent(uint64_t entityId, ComponentID id, const ComponentRef component){
-        
 
         auto& componentVector = mComponents[id];
         auto& componentVectorByType = mComponentsByType[id];
         
         if( entityId >= componentVector.size() ){
+            
             componentVector.push_back( component );
             componentVectorByType.push_back( component.get() );
+            
         }else{
             
             componentVector[entityId] = component;
             componentVectorByType.push_back( component.get() );
-//            componentVectorByType.clear();
-//            for(auto cp :  componentVector){
-//                if(cp != nullptr){
-//                    componentVectorByType.push_back( cp.get() );
-//                }
-//            }
+
         }
 
     }
-
-
-    template<typename T>
-    std::vector<std::weak_ptr<T>> getComponents(){
-
-        if( needsRefresh ){
-            refresh();
-        }
-
-        auto cId = getComponentTypeID<T>();
-
-        auto components = mComponents[cId];
-
-        std::vector<std::weak_ptr< T > > vec;
-        for( auto& c : components ){
-            vec.push_back( std::weak_ptr<T>{ std::static_pointer_cast<T>(c) } );
-        }
-
-        return vec;
-    }
-
 
     template<class T>
     void setBitset(std::bitset<MaxComponents>* bitset, T head)const {
@@ -334,21 +227,21 @@ public:
             if( e == nullptr ){
                 continue;
             }
-            
             output.push_back(e);
         }
-        
+
         return output;
     }
     std::vector<SystemRef>& getSystems() { return mSystems; }
     
     
     void printCheck() {
+
         
         cout << "\n\n\n.stack: ";
         auto pool = idPool;
         while( pool.size() != 0 ){
-            auto i = pool.top();
+            auto i = pool.front();
             pool.pop();
             cout << i << ",";
         }
@@ -361,10 +254,11 @@ public:
         for( int i = 0; i < mEntities.size(); i++){
             
             if( mEntities[i] == nullptr ){
-                cout << "*" << " | ";
+                cout << "*" << " |" ;
             }else{
-                cout << i << " | ";
+                cout << i << " |";
             }
+        
 
         }
         cout << endl;
@@ -382,8 +276,8 @@ public:
             for( int j = 0; j < mComponents[i].size(); j++){
                 auto c = mComponents[i][j];
                 bool valid = c != nullptr;
-                cout << valid << " | ";
-            }
+                cout << valid << " |";
+        }
             cout << "_" << endl;
         }
         
@@ -396,8 +290,23 @@ public:
     
 protected:
 
-    std::stack<uint64_t> idPool;
+    std::queue<uint64_t> idPool;
     bool getId(uint64_t* outputID);
+    const int resizePool = 500;
+    
+    void resizeEntityBuffer(){
+        
+        // resize entity vector
+        mEntities.resize(resizePool);
+        
+        // add empty id's to pool
+        for(int i = 0; i < resizePool; i++){
+            idPool.push(i);
+        }
+        
+        resizeComponentVector();
+    }
+    
     void resizeComponentVector(){
         
         for(int i = 0; i < internal::lastID; i++){
