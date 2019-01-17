@@ -79,6 +79,11 @@ public:
         rawSystem->mManager = this;
         
         mSystems.push_back( rawSystem );
+        
+        if( isManagerInitialized == true ){
+            rawSystem->setup();
+        }
+        
         return  rawSystem;
     }
 
@@ -318,6 +323,7 @@ protected:
     }
     
     bool needsRefresh{false};
+    bool isManagerInitialized = false;
     std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
     
     //we use this to cast a whole vector at once, only possible with a raw pointer

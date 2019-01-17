@@ -36,6 +36,7 @@ void Manager::setup(){
     
     update();
     
+    isManagerInitialized = true;
 }
 
 void Manager::update(){
