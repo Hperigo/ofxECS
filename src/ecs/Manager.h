@@ -283,10 +283,9 @@ public:
     
 protected:
 
-    std::queue<uint64_t> idPool;
-    bool getId(uint64_t* outputID);
-    const int resizePool = 500;
-    
+    // ---- entity QUEUE functions -----
+    //@TODO: maybe add an specilized pool object?
+
     void addEntityToPool( EntityRef e ) {
         
         uint64_t eId = -1;
@@ -319,9 +318,13 @@ protected:
         for(int i = 0; i < internal::lastID; i++){
             mComponents[i].resize( mEntities.size() );
         }
-        
     }
     
+    std::queue<uint64_t> idPool;
+    bool getId(uint64_t* outputID);
+    const int resizePool = 500;
+    
+    // general manager vars -------
     bool needsRefresh{false};
     bool isManagerInitialized = false;
     std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
