@@ -35,7 +35,6 @@ namespace ecs{
 
         Entity() {
             mNumOfEntities += 1;
-            mComponentArray.fill(nullptr);
         }
 
         virtual ~Entity(){
@@ -151,8 +150,6 @@ namespace ecs{
             componentTypeID = getComponentTypeID<T>();  // we dont need a specialized function for wrapper components because getComponentTypeID already does that
     
             mComponentBitset.set(componentTypeID, 0);
-            mComponentArray [ componentTypeID ]->mEntity = nullptr;/**/
-            mComponentArray [ componentTypeID ] = nullptr;
 
             markRefresh();
         }
@@ -163,7 +160,7 @@ namespace ecs{
         T* getComponent(){
             
             assert(hasComponent< WrapperComponent<T> >());
-            Component* comp = mComponentArray[getComponentTypeID< WrapperComponent<T> >()];
+            Component* comp =   getComponentFromManager( getComponentTypeID< WrapperComponent<T> >() );
             WrapperComponent<T>* wrapper = static_cast< WrapperComponent<T>* >(  comp );
             
             return & (wrapper->object);
@@ -175,7 +172,9 @@ namespace ecs{
         T* getComponent(){
             
             assert(hasComponent<T>());
-            return (T*)mComponentArray[getComponentTypeID<T>()];
+//            return (T*)mComponentArray[getComponentTypeID<T>()];
+            
+            return (T*)getComponentFromManager( getComponentTypeID<T>() );
             
         }
         
@@ -186,10 +185,14 @@ namespace ecs{
         inline std::vector< Component* > getComponents(){
             std::vector< Component* > components;
             
-            for( int i = 0; i < internal::lastID; i++ ){
-                if( mComponentArray[i] != nullptr){
-                    components.push_back( mComponentArray[i] );
+            for( int i = 0; i < internal::lastID + 1; i++ ){
+                
+                if( mComponentBitset[i] == true ){
+                    auto c = getComponentFromManager( i );
+                    assert(c == nullptr);
+                    components.push_back( c );
                 }
+
             }
             
             return components;
@@ -198,9 +201,7 @@ namespace ecs{
         Manager* getManager() { return mManager; }
         
         std::shared_ptr<internal::EntityInfoBase> getFactory() const { return mFactory; };
-        
-        
-        
+
         void setActive( bool active = true ){
             mIsActive = active;
         }
@@ -209,6 +210,7 @@ namespace ecs{
         
     protected:
         
+        ecs::Component* getComponentFromManager(ComponentID cId) const;
         void addComponentToManager( ComponentID cId,  const ComponentRef& component );
         void markRefresh();
         
@@ -219,7 +221,6 @@ namespace ecs{
         bool mIsActive{ true };
         
         std::bitset<MaxComponents> mComponentBitset;
-        std::array< Component* , MaxComponents> mComponentArray;
         
         static unsigned int mNumOfEntities;
         unsigned int mEntityId;

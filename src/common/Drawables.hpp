@@ -81,7 +81,7 @@ namespace ecs {
             for(auto d : mDrawables){
                 if(d->isDrawable())
                 {
-					
+
 					_drawCalls += 1;
                     d->draw();
 

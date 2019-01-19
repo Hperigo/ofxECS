@@ -17,7 +17,6 @@ void Entity::addComponentToManager( ComponentID cId, const ComponentRef& compone
 
     mManager->addComponent(getId(), cId, component );
 
-    mComponentArray[cId] = component.get();
     mComponentBitset[cId] = true;
 
     component->mEntity = this;
@@ -25,6 +24,13 @@ void Entity::addComponentToManager( ComponentID cId, const ComponentRef& compone
     component->mComponentId = cId;
     component->setup();
 
+}
+
+ecs::Component* Entity::getComponentFromManager(ComponentID cId) const {
+    
+    auto& pool = mManager->mEntityPool;
+    auto component = pool.mComponents[cId][mEntityId].get();
+    return component;
 }
 
 void Entity::markRefresh(){

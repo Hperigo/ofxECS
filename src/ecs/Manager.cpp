@@ -12,7 +12,7 @@ using namespace ecs;
 //std::map< std::string , std::shared_ptr<ecs::internal::ComponentFactoryInterface>> Manager::typeFactory = std::map< std::string, std::shared_ptr<ecs::internal::ComponentFactoryInterface > >();
 
 
-bool Manager::getId(uint64_t* outputID){
+bool Manager::EntityPool::fetchId(uint64_t* outputID){
     
     if( idPool.size() ){
         *outputID = idPool.front();
@@ -21,6 +21,92 @@ bool Manager::getId(uint64_t* outputID){
     }
     
     return false;
+}
+
+Manager::EntityPool Manager::EntityPool::duplicate(){
+    
+    Manager::EntityPool returnPool;
+    
+        cout << "copied!" << endl;
+        returnPool.mEntities.reserve(mEntities.size());
+        
+        for( auto& entity : mEntities){
+            
+            EntityRef e;
+            entity->getFactory()->copyInto(entity.get(), e);
+            
+            returnPool.mEntities.push_back( e );
+            cout << "---------" << endl;
+            cout << "e : " << e->getId() << endl;
+            
+            for(size_t i = 0; i < e->mComponentBitset.size(); ++i){
+                
+                if(  e->mComponentBitset[i] == true ){
+                    
+                    cout << "c : " << i << endl;
+                    
+                    auto sourceComponent = mComponents[i][entity->getId()].get();
+                    ComponentRef targetComponent;
+                    auto factory = sourceComponent->getFactory();
+                    
+                    factory->copyInto( sourceComponent, targetComponent );
+                    targetComponent->mEntity = e.get();
+                    
+                    auto entityId = e->getId();
+                    auto id = i;
+                    
+                    // Todo add addComponent function to entityPool ----
+                    auto& componentVector = returnPool.mComponents[id];
+                    
+                    if( entityId >= componentVector.size() ){
+                        returnPool.resizeComponentVector();
+                        componentVector[entityId] = targetComponent;
+                    }else{
+                        componentVector[entityId] = targetComponent;
+                    }
+                }
+            }
+        }
+        return returnPool;
+}
+
+void Manager::EntityPool::setPool(const EntityPool &otherPool){
+        for( int i = 0; i < otherPool.mComponents.size(); i++ ){
+            
+            mComponents[i].clear();
+            
+            for( int j = 0; j < otherPool.mComponents[i].size(); j++ ){
+                
+                cout << "---j: " << j << endl;
+
+                ComponentRef sourceComponent = otherPool.mComponents[i][j];
+                ComponentRef targetComponent;
+                
+                sourceComponent->getFactory()->copyInto( sourceComponent.get(), targetComponent );
+//        /        mEntities[j]->mComponentArray[i] = otherPool.mComponents[i][j].get();
+                
+                mComponents[i].push_back(targetComponent);
+                
+                cout << " --- " << endl;
+                
+            }
+        }
+    
+
+    // TODO: maybe we also need to deep copy the entities here?
+    for( auto& sourceEntity : otherPool.mEntities ){
+        
+        EntityRef e;
+        sourceEntity->getFactory()->copyInto(sourceEntity.get(), e);
+        for( auto& c : mComponents[e->getId()] ){
+            if( c != nullptr  ){
+                c->mEntity = e.get();
+            }
+            mEntities[e->getId()] = e;
+        }
+
+        
+    }
 }
 
 
@@ -57,9 +143,9 @@ void Manager::refresh(){
         return;
     }
     
-    for( std::size_t i = 0; i < mComponents.size(); ++i ){
+    for( std::size_t i = 0; i < mEntityPool.mComponents.size(); ++i ){
         
-        auto& componentVector(mComponents[i]);
+        auto& componentVector(mEntityPool.mComponents[i]);
         
         // erase components
         int j = 0;
@@ -89,7 +175,7 @@ void Manager::refresh(){
         }
     }
     
-    for( auto eIt = mEntities.begin(); eIt != mEntities.end(); ++eIt){
+    for( auto eIt = mEntityPool.mEntities.begin(); eIt != mEntityPool.mEntities.end(); ++eIt){
         
         if( *eIt == nullptr ){
             continue;
@@ -97,7 +183,7 @@ void Manager::refresh(){
         
         if( ! (*eIt)->isAlive() )
         {
-            idPool.push((*eIt)->getId());
+            mEntityPool.idPool.push((*eIt)->getId());
             (*eIt).reset();
             //                eIt = mEntities.erase( eIt );
         }
@@ -114,4 +200,54 @@ void Manager::draw(){
             sys->draw();
         }
     }
+}
+
+
+void Manager::printCheck(){
+
+        cout << "\n\n\n.stack: ";
+        auto pool = mEntityPool.idPool;
+        while( pool.size() != 0 ){
+            auto i = pool.front();
+            pool.pop();
+            cout << i << ",";
+        }
+        cout << endl;
+        
+        cout << "last id is: " << internal::lastID << endl;
+        
+        // print entities id's
+        cout << "enti: ";
+        for( int i = 0; i < mEntityPool.mEntities.size(); i++){
+            
+            if( mEntityPool.mEntities[i] == nullptr ){
+                cout << "*" << " |" ;
+            }else{
+                cout << i << " |";
+            }
+            
+            
+        }
+        cout << endl;
+        
+        cout << "------";
+        for( int i = 0; i < mEntityPool.mEntities.size(); i++){
+            cout << "----";
+        }
+        cout << endl;
+        
+        // print valid components
+        for( int i = 0; i < 10; i++){
+            cout << "c: " << i << "> ";
+            
+            for( int j = 0; j < mEntityPool.mComponents[i].size(); j++){
+                auto c = mEntityPool.mComponents[i][j];
+                bool valid = c != nullptr;
+                cout << valid << " |";
+            }
+            cout << "_" << endl;
+        }
+        
+        cout << "\n\n\n\n";
+    
 }

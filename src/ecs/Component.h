@@ -64,7 +64,9 @@ namespace ecs{
         Manager* getManager(){ return mManager; }
 
 
-        std::shared_ptr<internal::ComponentFactoryInterface> getFactory() { return mFactory; }
+        std::shared_ptr<internal::ComponentFactoryInterface> getFactory() const {
+            return mFactory;
+        }
         void setFactory(const std::shared_ptr<internal::ComponentFactoryInterface>& iFactory ){ mFactory = iFactory; }
     protected:
     
@@ -121,6 +123,7 @@ namespace ecs{
             
             target.reset();
             target = std::make_shared<T>( *((T*)source) );
+            target->setFactory( shared_from_this() ) ;
         }
             
         

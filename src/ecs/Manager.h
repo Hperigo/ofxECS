@@ -41,9 +41,8 @@ public:
         e->mManager = this;
         e->mFactory = std::make_shared< internal::EntityInfoBase >();
         
-        addEntityToPool(e);
-        
-        resizeComponentVector();
+        mEntityPool.addEntityToPool(e);
+        mEntityPool.resizeComponentVector();
         
         if( e->onSetup ){
             e->onSetup();
@@ -104,12 +103,12 @@ public:
 
     void addComponent(uint64_t entityId, ComponentID id, const ComponentRef component){
 
-        auto& componentVector = mComponents[id];
+        auto& componentVector = mEntityPool.mComponents[id];
         auto& componentVectorByType = mComponentsByType[id];
         
         if( entityId >= componentVector.size() ){
             
-            resizeComponentVector();
+            mEntityPool.resizeComponentVector();
             componentVector[entityId] = component;
             componentVectorByType.push_back( component.get() );
             
@@ -165,7 +164,7 @@ public:
         std::bitset<MaxComponents> bitsetMask;
         setBitset( &bitsetMask, getComponentTypeID<Args>()... );
         std::vector<std::shared_ptr<Entity>> entities;
-        for( auto &e : mEntities ){
+        for( auto &e : mEntityPool.mEntities ){
             
             if( e == nullptr ){
                 continue;
@@ -185,14 +184,16 @@ public:
         EntityRef e;
         iEntity->getFactory()->copyInto( iEntity, e );
         
-        addEntityToPool(e);
+        mEntityPool.addEntityToPool(e);
         
         for(size_t i = 0; i < e->mComponentBitset.size(); ++i){
             
             if(  e->mComponentBitset[i] == true ){
                 
-                auto sourceComponent = e->mComponentArray[i];
-                ComponentRef targetComponent;  //= std::make_shared<Component>( *sourceComponent );
+                auto sourceComponent = iEntity->getComponentFromManager( i );
+                assert( sourceComponent != nullptr );
+                
+                ComponentRef targetComponent;
                 
                 sourceComponent->getFactory()->copyInto( sourceComponent, targetComponent );
                 targetComponent->mEntity = e.get();
@@ -215,7 +216,7 @@ public:
     std::vector<EntityRef> getEntities() {
         
         std::vector<EntityRef> output;
-        for( auto &e : mEntities ){
+        for( auto &e : mEntityPool.mEntities ){
             
             if( e == nullptr ){
                 continue;
@@ -228,113 +229,75 @@ public:
     std::vector<SystemRef>& getSystems() { return mSystems; }
     
     
-    void printCheck() {
-
+    void printCheck();
+    
+    struct EntityPool {
         
-        cout << "\n\n\n.stack: ";
-        auto pool = idPool;
-        while( pool.size() != 0 ){
-            auto i = pool.front();
-            pool.pop();
-            cout << i << ",";
-        }
-        cout << endl;
-        
-        cout << "last id is: " << internal::lastID << endl;
-        
-        // print entities id's
-        cout << "enti: ";
-        for( int i = 0; i < mEntities.size(); i++){
+            std::vector<EntityRef> mEntities;
+            std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
+        EntityPool(){
             
-            if( mEntities[i] == nullptr ){
-                cout << "*" << " |" ;
+        }
+        EntityPool duplicate();
+        void setPool(const EntityPool& otherPool );
+        
+        void addEntityToPool( EntityRef e ) {
+            // grabs an empty ( available id) from pool, if that's not available create a new space
+            uint64_t eId = -1;
+            if( fetchId( &eId ) ){
+                
+                e->mEntityId = eId;
+                mEntities[eId] = e;
+                
             }else{
-                cout << i << " |";
+                e->mEntityId = mEntities.size();
+                mEntities.emplace_back(e);
             }
-        
-
-        }
-        cout << endl;
-
-        cout << "------";
-        for( int i = 0; i < mEntities.size(); i++){
-            cout << "----";
-        }
-        cout << endl;
-
-        // print valid components
-        for( int i = 0; i < internal::lastID; i++){
-            cout << "c: " << i << "> ";
-        
-            for( int j = 0; j < mComponents[i].size(); j++){
-                auto c = mComponents[i][j];
-                bool valid = c != nullptr;
-                cout << valid << " |";
-        }
-            cout << "_" << endl;
         }
         
-        cout << "\n\n\n\n";
-    }
-    
-    
-    
-    
+        void resizeEntityBuffer(){
+            
+            // resize entity vector and later the components vector
+            mEntities.resize(resizePool);
+            
+            // add empty id's to pool
+            for(int i = 0; i < resizePool; i++){
+                idPool.push(i);
+            }
+            
+            resizeComponentVector();
+        }
+        
+        void resizeComponentVector(){
+            
+            for(int i = 0; i < internal::lastID; i++){
+                mComponents[i].resize( mEntities.size() );
+            }
+        }
+
+        std::queue<uint64_t> idPool;
+        bool fetchId(uint64_t* outputID);
+        const int resizePool = 500;
+    };
+
+    EntityPool mEntityPool;
     
 protected:
 
     // ---- entity QUEUE functions -----
     //@TODO: maybe add an specilized pool object?
-
-    void addEntityToPool( EntityRef e ) {
-        
-        uint64_t eId = -1;
-        if( getId( &eId ) ){
-            
-            e->mEntityId = eId;
-            mEntities[eId] = e;
-            
-        }else{
-            e->mEntityId = mEntities.size();
-            mEntities.emplace_back(e);
-        }
-    }
     
-    void resizeEntityBuffer(){
-        
-        // resize entity vector
-        mEntities.resize(resizePool);
-        
-        // add empty id's to pool
-        for(int i = 0; i < resizePool; i++){
-            idPool.push(i);
-        }
-        
-        resizeComponentVector();
-    }
     
-    void resizeComponentVector(){
-        
-        for(int i = 0; i < internal::lastID; i++){
-            mComponents[i].resize( mEntities.size() );
-        }
-    }
+    //  ---- general manager vars -------
     
-    std::queue<uint64_t> idPool;
-    bool getId(uint64_t* outputID);
-    const int resizePool = 500;
+    std::array< std::vector<Component*>, MaxComponents> mComponentsByType;
+    std::vector<SystemRef> mSystems;
     
-    // general manager vars -------
     bool needsRefresh{false};
     bool isManagerInitialized = false;
-    std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
-    
+
     //we use this to cast a whole vector at once, only possible with a raw pointer
     // TODO: make this the main array, not a copy, by using `new` and `delete`
-    std::array< std::vector<Component*>, MaxComponents> mComponentsByType;
-    
-    std::vector<EntityRef> mEntities;
-    std::vector<SystemRef> mSystems;
 
     friend class Entity;
 };
