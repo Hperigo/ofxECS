@@ -104,8 +104,6 @@ void Manager::EntityPool::setPool(const EntityPool &otherPool){
             }
             mEntities[e->getId()] = e;
         }
-
-        
     }
 }
 
