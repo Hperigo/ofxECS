@@ -18,7 +18,7 @@ class ofxDrawTargetFbo : public ecs::DrawTarget {
 public:
     ofxDrawTargetFbo(){
         
-        mFbo.allocate(1920, 1080, GL_RGBA);
+        mFbo.allocate(2400, 1380, GL_RGBA);
         
     }
     
@@ -26,7 +26,7 @@ public:
         
         mFbo.begin();
         
-        ofBackground( ofColor::paleVioletRed );
+        ofBackground( ofColor::black );
         
         ecs::DrawTarget::draw();
         

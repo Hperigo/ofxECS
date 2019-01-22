@@ -21,12 +21,17 @@ public:
         return std::make_shared<ofxEcsManager>();
     }
     
-    void setup() {
-        
-        ecs::Manager::setup();
+    ofxEcsManager() {
+        ecs::Manager();
         
         mEntityUpdator = ecs::UpdateSystem::getInstance();
         mEntityRender = ecs::DrawSystem::getInstance();
+        
+    }
+    
+    void setup() {
+        
+        ecs::Manager::setup();
     
     }
     

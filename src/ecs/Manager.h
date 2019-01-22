@@ -103,20 +103,16 @@ public:
     void refresh();
 
     void addComponent(uint64_t entityId, ComponentID id, const ComponentRef component){
-
-        auto& componentVector = mComponents[id];
-        auto& componentVectorByType = mComponentsByType[id];
         
-        if( entityId >= componentVector.size() ){
+        if( entityId >= mComponents[id].size() ){
             
             resizeComponentVector();
-            componentVector[entityId] = component;
-            componentVectorByType.push_back( component.get() );
+            mComponents[id][entityId] = component;
+            mComponentsByType[id].push_back( component.get() );
             
         }else{
-            
-            componentVector[entityId] = component;
-            componentVectorByType.push_back( component.get() );
+            mComponents[id][entityId] = component;
+            mComponentsByType[id].push_back( component.get() );
 
         }
 
@@ -314,8 +310,8 @@ protected:
     }
     
     void resizeComponentVector(){
-        
-        for(int i = 0; i < internal::lastID; i++){
+    
+        for(int i = 0; i < MaxComponents; i++){
             mComponents[i].resize( mEntities.size() );
         }
     }

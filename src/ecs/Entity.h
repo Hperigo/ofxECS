@@ -89,6 +89,7 @@ namespace ecs{
         typename std::enable_if< std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* addComponent() {
             
+            //entity already has component!
             assert(!hasComponent<T>());
             
             std::shared_ptr<T> rawComponent( new T() );
@@ -234,8 +235,8 @@ namespace ecs{
     struct EntityHelper :  public internal::EntityInfoBase{
         
         void copyInto( const Entity* source, EntityRef& target) override{
-            auto t = *std::static_pointer_cast<T>( source );
-            target = std::make_shared<T>( t );
+            auto t = (T*)( source );
+            target = std::make_shared<T>( *t );
         }
     
     };
