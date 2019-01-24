@@ -13,7 +13,11 @@
 
 #include "Transform.hpp"
 #include "ofTexture.h"
+#include "ofGraphics.h"
+#include "ofImage.h"
 
+
+#include "SuffolkSettings.h"
 #include "ImGui.h"
 
 class TextureEntity : public ecs::Entity, public ecs::IDrawable {
@@ -28,21 +32,25 @@ public:
     
     TextureEntity(const std::string& path ){
         
-        this->onSetup = [&, path]{
-            
+        this->onLateSetup = [&, path]{
             addComponent<ofTexture>();
-            addComponent<Transform>();
             loadTexture( path );
         };
     }
     
     
     void setup() override  {
-
+        // add the transform here... and not on the callback
+        addComponent<Transform>();
     }
     
     
     void setTexture(const ofTexture& texture ){
+        
+        if( !hasComponent<ofTexture>() ){
+            addComponent<ofTexture>();
+        }
+        
         *getComponent<ofTexture>() = texture;
     }
     
@@ -51,7 +59,6 @@ public:
         ofTexture tex;
         ofLoadImage( tex , path);
         setTexture( tex );
-        
         imagePath = path;
         
     }
@@ -64,10 +71,10 @@ public:
             ofPushMatrix();
             ofSetMatrixMode(OF_MATRIX_MODELVIEW);
             ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
-            
-            getComponent<ofTexture>()->draw(0,0);
-            
+            auto screenSize = sf::collums.screenSize;
+            getComponent<ofTexture>()->draw(0,0,screenSize.x, screenSize.y);
             ofPopMatrix();
+            
         }
         
     }
@@ -80,7 +87,6 @@ public:
         if( ImGui::Button("refresh image") ){
             loadTexture( imagePath );
         }
-        
     }
 private:
     std::string imagePath = "";

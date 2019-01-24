@@ -21,7 +21,7 @@ namespace ecs{
     using ComponentID = std::size_t;
     using ComponentRef = std::shared_ptr<Component>;
 
-    constexpr std::size_t MaxComponents{1200};
+    constexpr std::size_t MaxComponents{100};
     using ComponentBitset = std::bitset<MaxComponents>;
     
     namespace internal{

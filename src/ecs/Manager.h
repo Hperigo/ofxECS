@@ -43,11 +43,13 @@ public:
         
         mEntityPool.addEntityToPool(e);
         mEntityPool.resizeComponentVector();
-        
-        if( e->onSetup ){
-            e->onSetup();
-        }
+
         e->setup();
+        
+        if( e->onLateSetup ){
+            e->onLateSetup();
+        }
+        
         return e;
     }
     
@@ -58,13 +60,13 @@ public:
         e->mManager = this;
         e->mFactory = std::make_shared< EntityHelper<T> >();
         
-        addEntityToPool(e);
-        
-        if( e->onSetup ){
-            e->onSetup();
-        }
-        
+        mEntityPool.addEntityToPool(e);
+
         e->setup();
+        
+        if( e->onLateSetup ){
+            e->onLateSetup();
+        }
         
         return e;
     }
@@ -109,6 +111,9 @@ public:
         if( entityId >= componentVector.size() ){
             
             mEntityPool.resizeComponentVector();
+            
+            
+            assert( componentVector.size() );
             componentVector[entityId] = component;
             componentVectorByType.push_back( component.get() );
             
@@ -270,7 +275,7 @@ public:
         
         void resizeComponentVector(){
             
-            for(int i = 0; i < internal::lastID; i++){
+            for(int i = 0; i < MaxComponents; i++){
                 mComponents[i].resize( mEntities.size() );
             }
         }

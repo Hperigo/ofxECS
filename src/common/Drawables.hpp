@@ -113,7 +113,6 @@ namespace ecs {
                 }else{
                     std::cout << "error, drawable not found in this target" << std::endl;
                 }
-
             }
         }
         
@@ -150,6 +149,7 @@ namespace ecs {
         
     public:
         DrawSystem(){
+            
             auto t = std::make_shared<DrawTarget>();
             mDrawTargets["default"] = t;
         }
@@ -161,7 +161,8 @@ namespace ecs {
         void draw(){
             
             for(auto& d : mDrawTargets){
-                d.second->draw();
+                if(d.second)
+                    d.second->draw();
             }
         }
         
@@ -173,6 +174,10 @@ namespace ecs {
             mDrawTargets[name] =  iDrawTarget;
         };
 
+        
+        void setDefaultDrawTarget( const std::shared_ptr<DrawTarget> iDrawTarget ){
+            mDrawTargets["default"] = iDrawTarget;
+        }
         
         
         std::shared_ptr<DrawTarget> getDefaultDrawTarget(){

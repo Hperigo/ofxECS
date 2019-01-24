@@ -88,6 +88,7 @@ namespace ecs{
         typename std::enable_if< std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* addComponent() {
             
+            //entity already has component!
             assert(!hasComponent<T>());
             
             std::shared_ptr<T> rawComponent( new T() );
@@ -170,10 +171,7 @@ namespace ecs{
         template <class T,
         typename std::enable_if< std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* getComponent(){
-            
-            assert(hasComponent<T>());
-//            return (T*)mComponentArray[getComponentTypeID<T>()];
-            
+
             return (T*)getComponentFromManager( getComponentTypeID<T>() );
             
         }
@@ -189,7 +187,7 @@ namespace ecs{
                 
                 if( mComponentBitset[i] == true ){
                     auto c = getComponentFromManager( i );
-                    assert(c == nullptr);
+                    assert(c != nullptr); // this components should not be null, if so, why is the bitset true?
                     components.push_back( c );
                 }
 
@@ -228,15 +226,15 @@ namespace ecs{
         friend class Manager;
         
       //use this to initialize components in the entity constructor
-        std::function<void()> onSetup;
+        std::function<void()> onLateSetup;
     };
     
     template<class T>
     struct EntityHelper :  public internal::EntityInfoBase{
         
         void copyInto( const Entity* source, EntityRef& target) override{
-            auto t = *std::static_pointer_cast<T>( source );
-            target = std::make_shared<T>( t );
+            auto t = (T*)( source );
+            target = std::make_shared<T>( *t );
         }
     
     };
