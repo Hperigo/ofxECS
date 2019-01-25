@@ -55,10 +55,6 @@ struct TextEntity : public ecs::Entity, ecs::IDrawable {
             
             auto transformMat = getComponent<Transform>()->getWorldTransform();
             
-            cout << "id: " << getId() << " ";
-            
-            cout << transformMat * glm::vec4(0.0, 0.0, 0.0, 1.0) << endl;
-            
             ofSetColor( *getComponent<ofColor>() );
             
             ofPushMatrix();
@@ -66,7 +62,6 @@ struct TextEntity : public ecs::Entity, ecs::IDrawable {
             ofMultMatrix( transformMat );
             
 
-            
             mFont.drawString( mText, offset.x, offset.y );
             ofPopMatrix();
             ofPopStyle();

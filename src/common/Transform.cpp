@@ -63,11 +63,9 @@ Transform::~Transform(){
 void Transform::updateMatrices(bool updateChildren){
     
     // TODO: Cache the matrices transformss
-    
-    if( getEntity()->getId() == 23 ){
-        cout << "updated 23!" << endl;
-    }
-    
+    /*if( !needsUpdate() ){
+        return;
+    }*/
     
     glm::mat4 transform;
     transform *= glm::translate<float>(mat4(), localPos + anchorPoint);
@@ -79,30 +77,12 @@ void Transform::updateMatrices(bool updateChildren){
     
     if(parent)
     {
-        mWorldTransform = parent->mWorldTransform * mCTransform;
+        mWorldTransform = parent->getWorldTransform() * mCTransform;
     }else{
         mWorldTransform = mCTransform;
     }
-    
-    if( getEntity()->getId() == 23 ){
-        
-        glm::vec4 point = mWorldTransform * glm::vec4(0,0,0,1.0);
-        cout <<  point.y  << endl;
-        
-        
-        point = parent->getWorldTransform() * glm::vec4(0,0,0,1.0);
-        cout <<  point.y  << endl;
-    }
-    
 
-    if( updateChildren ){
-        for(auto& c : children){
-            c->updateMatrices();
-        }
-    }
-    
     mNeedsUpdate = false;
-    
 }
 
 // CTransformation Functions ------

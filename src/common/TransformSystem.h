@@ -17,11 +17,8 @@ struct TransformSystem : ecs::System{
         
         auto& transforms = getManager()->getComponentsArray<Transform>();
         for(auto& t : transforms){
-            
-            if(t->needsUpdate() && !t->hasParent()){
-
-                t->updateMatrices();
-            }
+            // TODO: only update leaf nodes or do some type of cache
+            t->updateMatrices();
         }
     }
     

@@ -12,6 +12,7 @@
 
 #include "Updatable.hpp"
 #include "Drawables.hpp"
+#include "TransformSystem.h"
 
 
 typedef  std::shared_ptr<class ofxEcsManager> ofxEcsManagerRef;
@@ -30,6 +31,8 @@ public:
     }
     
     void setup() {
+        
+        createSystem<TransformSystem>();
         
         ecs::Manager::setup();
     
