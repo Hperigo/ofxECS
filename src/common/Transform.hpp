@@ -31,7 +31,7 @@ public:
     
     void setCTransform(const glm::mat4& transform );
     
-    glm::mat4 getCTransformMatrix() const { return mCTransform; }
+    glm::mat4 getLoclTransformMatrix() const { return mCTransform; }
     glm::mat4 getWorldTransform() {
         
         if( needsUpdate() ){
@@ -129,7 +129,7 @@ public:
     
     
     bool needsUpdate() {
-        bool needs = (mNeedsUpdate || mAlwaysUpdate);
+        bool needs = mNeedsUpdate;//  || mAlwaysUpdate);
         return needs;
     }
     
@@ -165,7 +165,7 @@ public:
 protected:
     
     bool mNeedsUpdate = true;
-    bool mAlwaysUpdate = false;
+    bool mAlwaysUpdate = true; /* buggy */
 
     
     glm::vec3 localPos;

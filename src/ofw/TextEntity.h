@@ -35,6 +35,9 @@ struct TextEntity : public ecs::Entity, ecs::IDrawable {
     void setup() override {
         
         addComponent<Transform>();
+        auto c = addComponent<ofColor>();
+        *c = ofColor::white;
+        
     }
     
     
@@ -46,16 +49,27 @@ struct TextEntity : public ecs::Entity, ecs::IDrawable {
             if( alignRight ){
                 offset.x = -mFont.getStringBoundingBox(mText, 0,0).width;
             }
-                
+            
+            
+            ofPushStyle();
+            
+            auto transformMat = getComponent<Transform>()->getWorldTransform();
+            
+            cout << "id: " << getId() << " ";
+            
+            cout << transformMat * glm::vec4(0.0, 0.0, 0.0, 1.0) << endl;
+            
+            ofSetColor( *getComponent<ofColor>() );
             
             ofPushMatrix();
             ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-            ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
+            ofMultMatrix( transformMat );
             
 
             
             mFont.drawString( mText, offset.x, offset.y );
             ofPopMatrix();
+            ofPopStyle();
         }
     }
     

@@ -19,6 +19,7 @@ struct TransformSystem : ecs::System{
         for(auto& t : transforms){
             
             if(t->needsUpdate() && !t->hasParent()){
+
                 t->updateMatrices();
             }
         }
