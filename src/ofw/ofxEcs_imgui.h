@@ -23,7 +23,16 @@ namespace ImGui{
         bool b = false;
         b |= ImGui::DragFloat3("position", &(t->getPosPtr()->x));
         b |= ImGui::DragFloat3("anchor", &(t->getAnchorPointPtr()->x));
-        b |= ImGui::DragFloat3("scale", &(t->getScalePtr()->x), 0.01);
+
+        if( ImGui::GetIO().KeyShift ){
+            if(ImGui::DragFloat("scale", &(t->getScalePtr()->x), 0.001)){
+                t->getScalePtr()->y = t->getScalePtr()->x;
+                t->getScalePtr()->z = t->getScalePtr()->x;
+                b  |= true;
+            }
+        }else{
+            b |= ImGui::DragFloat3("scale", &(t->getScalePtr()->x), 0.01);
+        }
         
         if ( b ){
             t->updateMatrices();

@@ -45,7 +45,7 @@ namespace ecs {
         
         size_t listPositionIndex = -1;
         
-    private:
+    protected:
         
         bool Updatable = true;
         
@@ -136,8 +136,10 @@ namespace ecs {
         
         void update(){
             
-            for(auto& d : mUpdateTargets){
-                d.second->update();
+            if( doUpdate ){
+                for(auto& d : mUpdateTargets){
+                    d.second->update();
+                }
             }
         }
         
@@ -155,6 +157,7 @@ namespace ecs {
             return mUpdateTargets["default"];
         }
         
+        bool doUpdate = true;
         
     private:
         

@@ -42,11 +42,13 @@ Transform::Transform( const Transform& other ){
 
 
 void Transform::onDestroy() {
- 
+    
+    
+    cout << "on destroy: " << getId() << endl;
     // clean up children
     if( children.size() > 0 ){
         for( auto& c : children ){
-            c->removeParent(false, true);
+            c->removeParent(false, false);
         }
     }
     
@@ -230,6 +232,8 @@ void Transform::setParent( Transform* _parent, bool keepWorldCTransform)
 //
 void Transform::removeParent(bool keepWordCTransform, bool removeFromList){
     
+    cout << "will remove transform child: " << getId() << endl;
+
     if(removeFromList)
         parent->removeChildFromList(this);
     
@@ -293,7 +297,7 @@ bool Transform::hasChild(const Transform* child, bool recursive ){
 
 
 bool Transform::removeChildFromList( Transform* child){
-    cout << "will remove " << endl;
+    cout << "will remove transform: " << getId() << ", child: " << child->getId() << endl;
     auto findIt = findChild(child);
     
     if( findIt ){

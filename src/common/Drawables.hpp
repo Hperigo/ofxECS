@@ -18,6 +18,7 @@
 
 #include <iostream>
 
+class Transform;
 
 namespace ecs {
     // foward declare
@@ -35,9 +36,12 @@ namespace ecs {
         
         bool hasDrawTarget() { return (drawTargetOwner != nullptr);  }
         
-        virtual void setDrawable(  bool d ){
+        void setDrawable( bool d ){
             drawable = d;
         }
+        
+        // transverse a transform tree and set all drawables in there to true or false
+        static void setTree( Transform* t, bool d );
         
         bool isDrawable(){
             return drawable;
@@ -47,7 +51,7 @@ namespace ecs {
 
         size_t listPositionIndex = -1;
         
-    private:
+    protected:
         
         bool drawable = true;
         
@@ -134,8 +138,6 @@ namespace ecs {
 
         uint32_t _id;
         static uint32_t id_count;
-        
-
 
 		uint32_t _drawCalls = 0;
         friend class DrawSystem;

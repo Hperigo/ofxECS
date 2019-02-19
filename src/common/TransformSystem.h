@@ -10,6 +10,7 @@
 
 #include "ecs/Manager.h"
 #include "Transform.hpp"
+#include "Drawables.hpp"
 
 struct TransformSystem : ecs::System{
     
@@ -23,7 +24,37 @@ struct TransformSystem : ecs::System{
     }
     
     
-    void draw() override {     }
+    void drawTransforms(){
+        
+        auto transforms = getManager()->getComponentsArray<Transform>();
+        
+        
+        for( auto& t : transforms) {
+            
+            
+            if( auto d = dynamic_cast<ecs::IDrawable*>( t->getEntity() ) ){
+                if( ! d->isDrawable() ){
+                    return;
+                }
+            }
+            
+            auto mat = t->getWorldTransform();
+            
+            ofPushMatrix();
+            ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+            ofMultMatrix( mat );
+
+            ofSetColor( ofColor::red );
+            ofNoFill();
+            ofDrawRectangle( -5, -5, 10, 10 );
+            ofSetColor( ofColor::white );
+            ofDrawBitmapString( std::to_string( t->getId() ) , 0, 0);
+            ofFill();
+            ofPopMatrix();
+            
+        }
+        
+    }
         
         /*
         auto transforms = getManager()->getComponentsArray<Transform>();

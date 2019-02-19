@@ -6,6 +6,8 @@
 //
 
 #include "Drawables.hpp"
+#include "Transform.hpp"
+#include "Entity.h"
 
 using namespace std;
 using namespace ecs;
@@ -32,6 +34,31 @@ IDrawable::IDrawable( DrawTarget* iDrawTarget ){
     iDrawTarget->addDrawable( this );
     
 }
+
+
+void IDrawable::setTree( Transform* t, bool d ){
+    
+    
+    auto fn = [&, d](Transform& t) -> bool {
+        
+        
+        auto e = t.getEntity();
+//        cout << "setting drawable for: " << e->getId() << " to: " << d << endl;
+        auto drawable = dynamic_cast<ecs::IDrawable*>(e);
+        // if cast fails, transform entity does not have a IDrawable interface
+        if (drawable) {
+            drawable->setDrawable(d);
+        }
+        
+        return true;
+    };
+    
+    // do on the root;
+    fn( *t );
+    t->descendTree(fn);
+    
+}
+
 
 void IDrawable::setDrawTarget( std::shared_ptr<ecs::DrawTarget> iDrawTarget){
     

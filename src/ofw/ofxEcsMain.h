@@ -32,7 +32,7 @@ public:
     
     void setup() {
         
-        createSystem<TransformSystem>();
+        mTransformSys = createSystem<TransformSystem>().get();
         
         ecs::Manager::setup();
     
@@ -63,6 +63,7 @@ public:
     
     ecs::DrawSystem* mEntityRender;
     ecs::UpdateSystem* mEntityUpdator;
+    TransformSystem* mTransformSys;
 };
 
 

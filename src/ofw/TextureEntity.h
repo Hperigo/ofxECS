@@ -16,16 +16,18 @@
 #include "ofGraphics.h"
 #include "ofImage.h"
 
-
+#include "AlphaComponent.h"
 #include "SuffolkSettings.h"
 #include "ImGui.h"
 
 class TextureEntity : public ecs::Entity, public ecs::IDrawable {
     
 public:
+
     ~TextureEntity(){
-        
+        drawTargetOwner->removeDrawable( this );
     }
+    
     TextureEntity(){
         
     }
@@ -41,6 +43,7 @@ public:
     
     void setup() override  {
         // add the transform here... and not on the callback
+        addComponent<AlphaComponent>();
         addComponent<Transform>();
     }
     
@@ -66,13 +69,30 @@ public:
     
     void draw() override {
         
-        if( hasComponent<ofTexture>() ){
+        if( !isAlive() ){
+            drawTargetOwner->removeDrawable( this );
+            return;
+        }
+        
+        if( hasComponent<ofTexture>() && hasComponent<Transform>()  ){
         
             ofPushMatrix();
             ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-            ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
-            auto screenSize = sf::collums.screenSize;
-            getComponent<ofTexture>()->draw(0,0,screenSize.x, screenSize.y);
+            
+                ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
+                ofSetColor( 255, getComponent<AlphaComponent>()->alpha );
+                ofEnableBlendMode( OF_BLENDMODE_ALPHA );
+
+                auto texture = getComponent<ofTexture>();
+            
+                ofRectangle targetScreenRect( 0, 0, sf::screenSize.x, sf::screenSize.y );
+                ofRectangle r2(0,0, texture->getWidth(), texture->getHeight() );
+                r2.scaleTo(targetScreenRect, ofAspectRatioMode::OF_ASPECT_RATIO_KEEP_BY_EXPANDING);
+            
+            
+                getComponent<ofTexture>()->draw(0,0,screenSize.x, screenSize.y);
+            
+            ofSetColor( 255, 255 );
             ofPopMatrix();
             
         }
@@ -88,6 +108,8 @@ public:
             loadTexture( imagePath );
         }
     }
+    
+    
 private:
     std::string imagePath = "";
 };
