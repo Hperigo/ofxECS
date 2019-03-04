@@ -67,10 +67,11 @@ namespace ecs {
         }
         
         virtual void update(){
-
+            mUpdateCalls = 0;
             for(auto d : mUpdatables){
                 if(d->isUpdatable())
                 {
+                    mUpdateCalls++;
                     d->update();
                 }
             }
@@ -110,8 +111,11 @@ namespace ecs {
         
         std::vector<IUpdatable*> mUpdatables;
         
+        uint32_t getNumOfUpdateCalls(){ return mUpdateCalls; }
+        
     protected:
         
+        uint32_t mUpdateCalls;
         uint32_t _id;
         static uint32_t id_count;
         

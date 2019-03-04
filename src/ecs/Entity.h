@@ -54,6 +54,9 @@ namespace ecs{
         unsigned int getId() {
             return mEntityId;
         }
+        
+        std::string getName(){ return mName; }
+        void setName(const std::string& name ){ mName = name; }
     
         virtual void setup() { };
         
@@ -222,6 +225,8 @@ namespace ecs{
         
         static unsigned int mNumOfEntities;
         unsigned int mEntityId;
+        
+        std::string mName;
         
         friend class Manager;
         

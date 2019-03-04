@@ -23,7 +23,7 @@
 class TextureEntity : public ecs::Entity, public ecs::IDrawable {
     
 public:
-
+    
     ~TextureEntity(){
         drawTargetOwner->removeDrawable( this );
     }
@@ -35,7 +35,7 @@ public:
     TextureEntity(const std::string& path ){
         
         this->onLateSetup = [&, path]{
-            addComponent<ofTexture>();
+            addComponent<ofImage>();
             loadTexture( path );
         };
     }
@@ -48,22 +48,26 @@ public:
     }
     
     
-    void setTexture(const ofTexture& texture ){
+    void setTexture(const ofImage& img ){
         
-        if( !hasComponent<ofTexture>() ){
-            addComponent<ofTexture>();
+        if( !hasComponent<ofImage>() ){
+            addComponent<ofImage>();
         }
         
-        *getComponent<ofTexture>() = texture;
+        *getComponent<ofImage>() = img;
     }
     
     void loadTexture(const std::string& path ){
-    
-        ofTexture tex;
-        ofLoadImage( tex , path);
-        setTexture( tex );
-        imagePath = path;
         
+        ofImage img;
+        img.load( path );
+        imagePath = path;
+        setTexture(img);
+    }
+    
+    
+    void releaseImage(){
+        getComponent<ofImage>()->clear();
     }
     
     
@@ -74,23 +78,23 @@ public:
             return;
         }
         
-        if( hasComponent<ofTexture>() && hasComponent<Transform>()  ){
-        
+        if( hasComponent<ofImage>() && hasComponent<Transform>()  ){
+            
             ofPushMatrix();
             ofSetMatrixMode(OF_MATRIX_MODELVIEW);
             
-                ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
-                ofSetColor( 255, getComponent<AlphaComponent>()->alpha );
-                ofEnableBlendMode( OF_BLENDMODE_ALPHA );
-
-                auto texture = getComponent<ofTexture>();
+            ofMultMatrix( getComponent<Transform>()->getWorldTransform() );
+            ofSetColor( 255, getComponent<AlphaComponent>()->alpha );
+            ofEnableBlendMode( OF_BLENDMODE_ALPHA );
             
-                ofRectangle targetScreenRect( 0, 0, sf::screenSize.x, sf::screenSize.y );
-                ofRectangle r2(0,0, texture->getWidth(), texture->getHeight() );
-                r2.scaleTo(targetScreenRect, ofAspectRatioMode::OF_ASPECT_RATIO_KEEP_BY_EXPANDING);
+            auto texture = getComponent<ofImage>();
+            
+            ofRectangle targetScreenRect( 0, 0, sf::screenSize.x, sf::screenSize.y );
+            ofRectangle r2(0,0, texture->getWidth(), texture->getHeight() );
+            r2.scaleTo(targetScreenRect, ofAspectRatioMode::OF_ASPECT_RATIO_KEEP_BY_EXPANDING);
             
             
-                getComponent<ofTexture>()->draw(0,0,screenSize.x, screenSize.y);
+            getComponent<ofImage>()->draw(0,0,screenSize.x, screenSize.y);
             
             ofSetColor( 255, 255 );
             ofPopMatrix();
@@ -99,6 +103,7 @@ public:
         
     }
     
+    std::string getPath() { return imagePath; }
     
     void drawUi() override {
         

@@ -183,7 +183,6 @@ void Manager::refresh(){
         {
             mEntityPool.idPool.push((*eIt)->getId());
             (*eIt).reset();
-            //                eIt = mEntities.erase( eIt );
         }
     }
     needsRefresh = false;

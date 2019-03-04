@@ -237,9 +237,7 @@ public:
     void printCheck();
     
     struct EntityPool {
-        
-            std::vector<EntityRef> mEntities;
-            std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
+
         EntityPool(){
             
         }
@@ -253,8 +251,11 @@ public:
                 
                 e->mEntityId = eId;
                 mEntities[eId] = e;
+
+                cout << "re-used entity: " <<  eId << endl;
                 
             }else{
+                cout << "appended entity: " <<  mEntities.size() << endl;
                 e->mEntityId = mEntities.size();
                 mEntities.emplace_back(e);
             }
@@ -279,10 +280,24 @@ public:
                 mComponents[i].resize( mEntities.size() );
             }
         }
-
+        
+        uint32_t getNumOfActiveEntities(){
+            uint32_t num = 0;
+            for(auto e : mEntities){
+                if(e != nullptr){
+                    num++;
+                }
+            }
+            
+            return num;
+        }
+        
+        std::vector<EntityRef> mEntities;
+        std::array< std::vector<ComponentRef>, MaxComponents> mComponents;
+        
         std::queue<uint64_t> idPool;
         bool fetchId(uint64_t* outputID);
-        const int resizePool = 500;
+        const int resizePool = 512;
     };
 
     EntityPool mEntityPool;

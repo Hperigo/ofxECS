@@ -263,9 +263,6 @@ struct ecs::ComponentFactoryTemplate<Transform> : public ecs::ComponentFactory<T
 
 //template<>
 //inline Transform ecs::ComponentFactory<Transform>::object = Transform();
-
-
-
 namespace ImGui{
     
     inline void DrawTransform2D( Transform* t ){

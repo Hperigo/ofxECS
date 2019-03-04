@@ -49,22 +49,21 @@ namespace ImGui{
     
     inline bool SelectTransform( Transform* t, Transform*& outputTransform ){
         
-        static int selection_mask = (1 << 0);
-        int node_clicked = -1;
+        static long int selectedNode = -1;
+        long int node_clicked = -1;
         
         ecs::EntityRef selectedEntity = nullptr;
         
         
         std::function<void(Transform*&, Transform*&)> drawChildren = [&](Transform*& root, Transform*& out ){
             
-            
-            ImGui::PushID("id");
-            
             auto rootId = root->getId();//  root->getEntity().lock()->getId();
             auto id_text = "e id: " + std::to_string( rootId );
             
-            auto nodeName = std::to_string(rootId).c_str();
-            bool isSelected = ((selection_mask & (1 << rootId)));
+            ImGui::PushID(id_text.c_str());
+
+            auto nodeName = root->getEntity()->getName();
+            bool isSelected = selectedNode == rootId;
             
             ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ((isSelected == true) ? ImGuiTreeNodeFlags_Selected : 0 ) ;
             
@@ -72,9 +71,11 @@ namespace ImGui{
                 out  = root;
             }
             
+            
+            
             if( !root->isLeaf() ){
                 
-                bool nodeOpen =  ImGui::TreeNodeEx((void*)(intptr_t)rootId, node_flags, "id: %lu", rootId);
+                bool nodeOpen =  ImGui::TreeNodeEx((void*)(intptr_t)rootId, node_flags, "%lu: %s", rootId, nodeName.c_str() );
 
                 if(ImGui::IsItemClicked()){
                     node_clicked = rootId;
@@ -90,7 +91,7 @@ namespace ImGui{
                 
             }else{
                 
-                ImGui::TreeNodeEx((void*)(intptr_t)rootId, node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "id: %lu", rootId);
+                ImGui::TreeNodeEx((void*)(intptr_t)rootId, node_flags | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, "%lu: %s", rootId, nodeName.c_str() );
                 if(ImGui::IsItemClicked()){
                     node_clicked = rootId;
                 }
@@ -103,7 +104,7 @@ namespace ImGui{
         drawChildren( t, outputTransform);
         
         if( node_clicked != -1 ){
-            selection_mask = (1 << node_clicked);
+            selectedNode = node_clicked;
             return  true;
         }
         

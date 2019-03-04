@@ -18,6 +18,12 @@
 
 #include <iostream>
 
+/*
+@Notes:
+ make a separate draw target
+ 
+*/
+
 class Transform;
 
 namespace ecs {
@@ -85,10 +91,8 @@ namespace ecs {
             for(auto d : mDrawables){
                 if(d->isDrawable())
                 {
-
 					_drawCalls += 1;
                     d->draw();
-
                 }
             }
         }
@@ -97,11 +101,10 @@ namespace ecs {
         
         //TODO: add on top of, bellow, etc...
         void addDrawable( IDrawable* iDrawable ){
-            
             iDrawable->drawTargetId = mDrawables.size();
             iDrawable->drawTargetOwner = this;
             mDrawables.push_back( iDrawable );
-            iDrawable->listPositionIndex = mDrawables.size() - 1 ;
+            iDrawable->listPositionIndex = mDrawables.size() - 1;
         }
         
         
