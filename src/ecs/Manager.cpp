@@ -171,8 +171,10 @@ void Manager::refresh(){
                 mComponentsByType[i].push_back( cp.get() );
             }
         }
-    }
+    } // end of entity loop
     
+    
+    //erase dead Entities
     for( auto eIt = mEntityPool.mEntities.begin(); eIt != mEntityPool.mEntities.end(); ++eIt){
         
         if( *eIt == nullptr ){
@@ -185,6 +187,7 @@ void Manager::refresh(){
             (*eIt).reset();
         }
     }
+    
     needsRefresh = false;
     
 }

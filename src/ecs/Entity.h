@@ -42,7 +42,7 @@ namespace ecs{
                 markRefresh();
             }
         }
-        
+
         EntityRef duplicate();
         
         bool isAlive() const { return mIsAlive; }
@@ -50,18 +50,17 @@ namespace ecs{
             mIsAlive = false;
             markRefresh();
         };
+
+        virtual void setup() { }
+        virtual void drawUi() { };
+
+        
+        std::string getName(){ return mName; }
+        void setName(const std::string& name ){ mName = name; }
         
         unsigned int getId() {
             return mEntityId;
         }
-        
-        std::string getName(){ return mName; }
-        void setName(const std::string& name ){ mName = name; }
-    
-        virtual void setup() { };
-        
-        virtual void drawUi() { };
-
         
         template < typename T>
         bool hasComponent() const{
@@ -150,17 +149,17 @@ namespace ecs{
         void removeComponent(){
 
             ComponentID componentTypeID;
-
-            componentTypeID = getComponentTypeID<T>();  // we dont need a specialized function for wrapper components because getComponentTypeID already does that
-    
+            
+            // we dont need a specialized function for wrapper components because getComponentTypeID already does that
+            componentTypeID = getComponentTypeID<T>();
             mComponentBitset.set(componentTypeID, 0);
-
+            
             markRefresh();
         }
 
         
         template <class T,
-        typename std::enable_if< !std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
+        typename std::enable_if< ! std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* getComponent(){
             
             assert(hasComponent< WrapperComponent<T> >());
@@ -175,7 +174,10 @@ namespace ecs{
         typename std::enable_if< std::is_base_of<ecs::Component, T>::value, T>::type* = nullptr>
         T* getComponent(){
 
-            return (T*)getComponentFromManager( getComponentTypeID<T>() );
+            if( hasComponent<T>() )
+                return (T*)getComponentFromManager( getComponentTypeID<T>() );
+            else
+                return nullptr;
             
         }
         
@@ -239,7 +241,8 @@ namespace ecs{
         
         void copyInto( const Entity* source, EntityRef& target) override{
             auto t = (T*)( source );
-            target = std::make_shared<T>( *t );
+            std::shared_ptr<T> newOne = std::make_shared<T>( *t );
+            target = newOne;
         }
     
     };
