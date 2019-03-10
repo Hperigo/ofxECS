@@ -11,7 +11,6 @@
 using namespace ecs;
 //std::map< std::string , std::shared_ptr<ecs::internal::ComponentFactoryInterface>> Manager::typeFactory = std::map< std::string, std::shared_ptr<ecs::internal::ComponentFactoryInterface > >();
 
-
 bool Manager::EntityPool::fetchId(uint64_t* outputID){
     
     if( idPool.size() ){
@@ -19,7 +18,6 @@ bool Manager::EntityPool::fetchId(uint64_t* outputID){
         idPool.pop();
         return true;
     }
-    
     return false;
 }
 
@@ -158,7 +156,6 @@ void Manager::refresh(){
             
             if( !e->isAlive() ){
                 (*cIt)->onDestroy();
-                //cIt = componentVector.erase(cIt);
                 (*cIt).reset();
             }
             
@@ -183,6 +180,9 @@ void Manager::refresh(){
         
         if( ! (*eIt)->isAlive() )
         {
+            if( (*eIt)->onDestroy ){
+                (*eIt)->onDestroy();
+            }
             mEntityPool.idPool.push((*eIt)->getId());
             (*eIt).reset();
         }

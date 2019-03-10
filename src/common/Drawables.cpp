@@ -91,9 +91,7 @@ void IDrawable::drawAtTop(){
 }
 
 IDrawable::~IDrawable(){
-    
-    cout << "drawable destroy!" << endl;
-    
+
     if( hasDrawTarget() ){
         drawTargetOwner->removeDrawable( this );
     }

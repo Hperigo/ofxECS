@@ -211,6 +211,8 @@ namespace ecs{
         
         bool isActive() const { return mIsActive; }
         
+        std::function<void()> onDestroy;
+        
     protected:
         
         ecs::Component* getComponentFromManager(ComponentID cId) const;

@@ -43,8 +43,7 @@ Transform::Transform( const Transform& other ){
 
 void Transform::onDestroy() {
     
-    
-    cout << "on destroy: " << getId() << endl;
+    cout << "on destroy transform: " << getId() << endl;
     // clean up children
     if( children.size() > 0 ){
         for( auto& c : children ){
@@ -89,7 +88,7 @@ void Transform::updateMatrices(bool updateChildren){
 
 // CTransformation Functions ------
 
-void Transform::setCTransform(const mat4 &transform){
+void Transform::setTransform(const mat4 &transform){
     
     mCTransform = transform;
     if(parent)
@@ -102,8 +101,26 @@ void Transform::setCTransform(const mat4 &transform){
     mNeedsUpdate = true;
 }
 
+void Transform::set(Transform &other){
+    
+    setPos( other.getPos() );
+    setRotation( other.getRotation() );
+    setScale( other.getScale() );
+    setAnchorPoint( other.getAnchorPoint() );
+    
+}
+
 
 // Position -------
+
+glm::vec3 Transform::getPos() {
+    
+    if(needsUpdate()){
+        updateMatrices();
+    }
+    return localPos;
+    
+}
 
 vec3 Transform::getWorldPos() {
     
@@ -161,6 +178,16 @@ vec3 Transform::getWorldScale() {
         return localScale;
     }
 }
+
+glm::vec3 Transform::getScale(){
+    
+    if(needsUpdate()){
+        updateMatrices();
+    }
+    
+    return localScale;
+}
+    
 
 // Rotation -------
 void Transform::setWorldRotation( float radians ){

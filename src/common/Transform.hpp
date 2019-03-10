@@ -29,7 +29,7 @@ public:
     
     void onDestroy() override;
     
-    void setCTransform(const glm::mat4& transform );
+    void setTransform(const glm::mat4& transform );
     
     glm::mat4 getLoclTransformMatrix() const { return mCTransform; }
     glm::mat4 getWorldTransform() {
@@ -41,22 +41,18 @@ public:
         return mWorldTransform;
     }
     
+    //--- sets the lcation,rotation, anchor and scale based on another transform ( whithout setting it's parent )
+    
+    void set( Transform& other );
+    
     // Position ------------------------------
     glm::vec3 getWorldPos();
     void setWorldPos(const glm::vec3& pos);
     
-    glm::vec3 getPos()  {
-        
-        if(needsUpdate()){
-            updateMatrices();
-        }
-        return localPos;
-        
-    }
-    void setPos(const glm::vec3& pos){ localPos = pos; mNeedsUpdate = true; }
-    
+    glm::vec3 getPos();
     glm::vec3* getPosPtr(){  return &localPos; }
-    
+    void setPos(const glm::vec3& pos){ localPos = pos; mNeedsUpdate = true; }
+
     // anchor point -----
     
     void setAnchorPoint(const glm::vec3& p ){  anchorPoint = p; mNeedsUpdate = true; }
@@ -72,17 +68,9 @@ public:
     void setScale( float s ) { setScale( glm::vec3(s,s,s) ); mNeedsUpdate = true; }
     
     glm::vec3* getScalePtr(){  return &localScale; }
-    
-    glm::vec3 getScale()  {
-        
-        if(needsUpdate()){
-            updateMatrices();
-        }
-        
-        return localScale;
-    }
-    
-    
+    glm::vec3 getScale();
+
+
     // Rotation --------------------------------
     
     void setWorldRotation( float radians );
