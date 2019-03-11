@@ -61,6 +61,7 @@ public:
     }
     
     
+    
     ecs::DrawSystem* mEntityRender;
     ecs::UpdateSystem* mEntityUpdator;
     TransformSystem* mTransformSys;

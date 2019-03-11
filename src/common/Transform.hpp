@@ -65,7 +65,7 @@ public:
     glm::vec3 getWorldScale();
     
     void setScale(const glm::vec3& scale ){ localScale = scale; mNeedsUpdate = true; }
-    void setScale( float s ) { setScale( glm::vec3(s,s,s) ); mNeedsUpdate = true; }
+    void setScaleUniform( float s ) { setScale( glm::vec3(s,s,s) ); mNeedsUpdate = true; }
     
     glm::vec3* getScalePtr(){  return &localScale; }
     glm::vec3 getScale();
@@ -73,11 +73,11 @@ public:
 
     // Rotation --------------------------------
     
-    void setWorldRotation( float radians );
+    void setWorld2dRotation( float radians );
     void setWorldRotation(const glm::quat& q );
     
     
-    void setRotation( float radians ){
+    void set2dRotation( float radians ){
         mRotation = glm::angleAxis( radians, glm::vec3( 0, 0, 1 ) );
         mNeedsUpdate = true;
     }
@@ -94,7 +94,7 @@ public:
         return mRotation;
         
     }
-    float getRotationRadians()  {
+    float get2dRotation()  {
         
         if(needsUpdate()){
             updateMatrices();

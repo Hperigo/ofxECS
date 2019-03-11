@@ -190,7 +190,7 @@ glm::vec3 Transform::getScale(){
     
 
 // Rotation -------
-void Transform::setWorldRotation( float radians ){
+void Transform::setWorld2dRotation( float radians ){
     
     auto q = glm::angleAxis( radians, glm::vec3( 0, 0, 1 ) );
     

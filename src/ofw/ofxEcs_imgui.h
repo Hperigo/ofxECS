@@ -38,9 +38,9 @@ namespace ImGui{
             t->updateMatrices();
         }
         
-        auto rot = t->getRotationRadians();
+        auto rot = t->get2dRotation();
         if( ImGui::DragFloat("rotation", &rot, 0.01) ){
-            t->setRotation(rot);
+            t->set2dRotation(rot);
             b = true;
         }
         
