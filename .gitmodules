@@ -1,0 +1,3 @@
+[submodule "PerigoEcs"]
+	path = PerigoEcs
+	url = https://github.com/Hperigo/PerigoEcs.git
