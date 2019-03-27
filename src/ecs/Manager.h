@@ -208,7 +208,7 @@ public:
             }
         }
         
-        printCheck();
+       // printCheck();
         
         return e;
     }
@@ -252,10 +252,8 @@ public:
                 e->mEntityId = eId;
                 mEntities[eId] = e;
 
-                cout << "re-used entity: " <<  eId << endl;
-                
             }else{
-                cout << "appended entity: " <<  mEntities.size() << endl;
+                
                 e->mEntityId = mEntities.size();
                 mEntities.emplace_back(e);
             }
@@ -288,8 +286,25 @@ public:
                     num++;
                 }
             }
-            
             return num;
+        }
+        
+        
+        void cleanup(){
+            
+            
+            
+            uint64_t index;
+            
+            for( auto e = mEntities.begin(); e != mEntities.end(); ){
+                if( *e == nullptr ){
+                    mEntities.erase(e);
+                    
+                }else{
+                    ++e;
+                    ++index;
+                }
+            }
         }
         
         std::vector<EntityRef> mEntities;

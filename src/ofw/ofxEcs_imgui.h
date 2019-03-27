@@ -57,7 +57,7 @@ namespace ImGui{
         
         std::function<void(Transform*&, Transform*&)> drawChildren = [&](Transform*& root, Transform*& out ){
             
-            auto rootId = root->getId();//  root->getEntity().lock()->getId();
+            auto rootId = root->getEntity()->getId();//  root->getEntity().lock()->getId();
             auto id_text = "e id: " + std::to_string( rootId );
             
             ImGui::PushID(id_text.c_str());

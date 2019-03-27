@@ -143,7 +143,7 @@ public:
     
     
     size_t getId() const { return mId; }
-    void setId(size_t i){ mId = i; }
+    void setId(uint32_t i){ mId = i; }
     
     void updateMatrices(bool updateChildren = true);
     
@@ -171,8 +171,8 @@ protected:
     Transform* parent = nullptr;
     
     
-    static size_t transformId;
-    size_t mId = 0;
+    static uint32_t transformId;
+    uint32_t mId = 0;
 };
 
 

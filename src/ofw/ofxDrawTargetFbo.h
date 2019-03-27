@@ -26,15 +26,12 @@ public:
         
         mFbo.begin();
         
-        ofBackground( ofColor::black );
-        
-        ecs::DrawTarget::draw();
+            ofBackground( ofColor::black );
+            ecs::DrawTarget::draw();
         
         mFbo.end();
-        
     }
 
-    
     ofFbo mFbo;
 };
 

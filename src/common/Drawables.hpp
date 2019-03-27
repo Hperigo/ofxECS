@@ -71,8 +71,7 @@ namespace ecs {
 
     // simple draw target
     struct DrawTarget{
-        
-        
+
         DrawTarget(){
             id_count++;
             _id = id_count;
@@ -96,9 +95,7 @@ namespace ecs {
                 }
             }
         }
-        
-        
-        
+
         //TODO: add on top of, bellow, etc...
         void addDrawable( IDrawable* iDrawable ){
             iDrawable->drawTargetId = mDrawables.size();
@@ -106,8 +103,7 @@ namespace ecs {
             mDrawables.push_back( iDrawable );
             iDrawable->listPositionIndex = mDrawables.size() - 1;
         }
-        
-        
+
         void removeDrawable( IDrawable* drawable ){
             
             if(  drawable != nullptr ){
@@ -129,25 +125,19 @@ namespace ecs {
             return mDrawables.size();
         }
 
-
 		int getNumOfDrawCalls() {
 			return _drawCalls;
 		}
 
-        
     protected:
 
 		std::vector<IDrawable*> mDrawables;
-
         uint32_t _id;
         static uint32_t id_count;
 
 		uint32_t _drawCalls = 0;
         friend class DrawSystem;
     };
-
-
-
 
     // performs the actuall drawing
     class DrawSystem{
@@ -159,10 +149,8 @@ namespace ecs {
             mDrawTargets["default"] = t;
         }
         
-        
         static DrawSystem* getInstance();
-        
-        
+
         void draw(){
             
             for(auto& d : mDrawTargets){

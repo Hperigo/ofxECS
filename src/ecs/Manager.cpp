@@ -202,52 +202,29 @@ void Manager::draw(){
     }
 }
 
-
+// prints a csv with the components in a row, and entities as collumns
 void Manager::printCheck(){
+    // print entities id's
+    cout << "enti,";
+    for( int i = 0; i < mEntityPool.mEntities.size(); i++){
 
-        cout << "\n\n\n.stack: ";
-        auto pool = mEntityPool.idPool;
-        while( pool.size() != 0 ){
-            auto i = pool.front();
-            pool.pop();
+        if( mEntityPool.mEntities[i] == nullptr ){
+            cout << "*" << "," ;
+        }else{
             cout << i << ",";
         }
-        cout << endl;
-        
-        cout << "last id is: " << internal::lastID << endl;
-        
-        // print entities id's
-        cout << "enti: ";
-        for( int i = 0; i < mEntityPool.mEntities.size(); i++){
-            
-            if( mEntityPool.mEntities[i] == nullptr ){
-                cout << "*" << " |" ;
-            }else{
-                cout << i << " |";
-            }
-            
-            
-        }
-        cout << endl;
-        
-        cout << "------";
-        for( int i = 0; i < mEntityPool.mEntities.size(); i++){
-            cout << "----";
-        }
-        cout << endl;
-        
-        // print valid components
-        for( int i = 0; i < 10; i++){
-            cout << "c: " << i << "> ";
-            
-            for( int j = 0; j < mEntityPool.mComponents[i].size(); j++){
-                auto c = mEntityPool.mComponents[i][j];
-                bool valid = c != nullptr;
-                cout << valid << " |";
-            }
-            cout << "_" << endl;
-        }
-        
-        cout << "\n\n\n\n";
+    }
+    cout << endl;
     
+    // print valid components
+    for( int i = 0; i < 10; i++){
+        cout << "id: " << i << ",";
+
+        for( int j = 0; j < mEntityPool.mComponents[i].size(); j++){
+            auto c = mEntityPool.mComponents[i][j];
+            bool valid = c != nullptr;
+            cout << valid << ",";
+        }
+        cout << "_" << endl;
+    }
 }

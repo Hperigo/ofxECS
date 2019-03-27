@@ -11,7 +11,7 @@
 
 using namespace glm;
 
-size_t Transform::transformId = 0;
+uint32_t Transform::transformId = 0;
 
 Transform::Transform(){
     mId = transformId;
@@ -43,7 +43,6 @@ Transform::Transform( const Transform& other ){
 
 void Transform::onDestroy() {
     
-    cout << "on destroy transform: " << getId() << endl;
     // clean up children
     if( children.size() > 0 ){
         for( auto& c : children ){
