@@ -13,27 +13,27 @@
 #include "ofFbo.h"
 
 
-class ofxDrawTargetFbo : public ecs::DrawTarget {
-    
-public:
-    ofxDrawTargetFbo(){
-        
-        mFbo.allocate(2400, 1380, GL_RGBA);
-        
-    }
-    
-    void draw() override  {
-        
-        mFbo.begin();
-        
-            ofBackground( ofColor::black );
-            ecs::DrawTarget::draw();
-        
-        mFbo.end();
-    }
-
-    ofFbo mFbo;
-};
+//class ofxDrawTargetFbo : public ecs::DrawTarget {
+//
+//public:
+//    ofxDrawTargetFbo(){
+//
+//        mFbo.allocate(2400, 1380, GL_RGBA);
+//
+//    }
+//
+//    void draw() override  {
+//
+//        mFbo.begin();
+//
+//            ofBackground( ofColor::black );
+////            ecs::DrawTarget::draw();
+//
+//        mFbo.end();
+//    }
+//
+//    ofFbo mFbo;
+//};
 
 
 #endif /* DrawTargetFbo_h */

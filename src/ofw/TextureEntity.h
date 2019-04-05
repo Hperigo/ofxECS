@@ -25,18 +25,21 @@ class TextureEntity : public ecs::Entity, public ecs::IDrawable {
 public:
     
     ~TextureEntity(){
-        drawTargetOwner->removeDrawable( this );
+//        drawTargetOwner->removeDrawable( this );
     }
     
     TextureEntity(){
         
     }
     
-    TextureEntity(const std::string& path ){
+    TextureEntity(const std::string& path, bool doLoad = true ){
         
-        this->onLateSetup = [&, path]{
+        this->onLateSetup = [&, path, doLoad]{
             addComponent<ofImage>();
-            loadTexture( path );
+            
+            if( doLoad ){
+                loadTexture( path );
+            }
         };
     }
     
@@ -66,6 +69,10 @@ public:
     }
     
     
+    void setPath( const std::string& path ){
+        imagePath = path;
+    }
+    
     void releaseImage(){
         getComponent<ofImage>()->clear();
     }
@@ -74,7 +81,7 @@ public:
     void draw() override {
         
         if( !isAlive() ){
-            drawTargetOwner->removeDrawable( this );
+//            drawTargetOwner->removeDrawable( this );
             return;
         }
         
@@ -89,12 +96,11 @@ public:
             
             auto texture = getComponent<ofImage>();
             
-            ofRectangle targetScreenRect( 0, 0, sf::screenSize.x, sf::screenSize.y );
+            ofRectangle targetScreenRect( 0, 0, sf::Constants::screenSize.x, sf::Constants::screenSize.y );
             ofRectangle r2(0,0, texture->getWidth(), texture->getHeight() );
             r2.scaleTo(targetScreenRect, ofAspectRatioMode::OF_ASPECT_RATIO_KEEP_BY_EXPANDING);
-            
-            
-            getComponent<ofImage>()->draw(0,0,screenSize.x, screenSize.y);
+
+            getComponent<ofImage>()->draw(0,0,Constants::screenSize.x, Constants::screenSize.y);
             
             ofSetColor( 255, 255 );
             ofPopMatrix();

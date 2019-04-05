@@ -10,7 +10,6 @@
 
 #include "Manager.h"
 
-#include "Updatable.hpp"
 #include "Drawables.hpp"
 #include "TransformSystem.h"
 
@@ -25,45 +24,43 @@ public:
     ofxEcsManager() {
         ecs::Manager();
         
-        mEntityUpdator = ecs::UpdateSystem::getInstance();
-        mEntityRender = ecs::DrawSystem::getInstance();
-        
+//        mEntityRender = ecs::DrawSystem::getInstance();
     }
     
     void setup() {
         
         mTransformSys = createSystem<TransformSystem>().get();
+        mEntityUpdator = createSystem<ecs::UpdateSystem>();
+        mEntityRender = createSystem<ecs::DrawSystem2D>();
         
+
         ecs::Manager::setup();
-    
     }
     
     void update() {
 
         ecs::Manager::update();
-        mEntityUpdator->update();
+//        mEntityRender->update();
         
     }
     
     
     void draw() {
         ecs::Manager::draw();
-        mEntityRender->draw();
+//        mEntityRender->draw();
     }
     
     
-    ecs::DrawSystem* getDefaultDrawSystem(){
+    std::shared_ptr<ecs::DrawSystem2D> getDefaultDrawSystem(){
         return mEntityRender;
     }
-    
-    ecs::UpdateSystem* getDefaultUpdateSystem(){
+
+    std::shared_ptr<ecs::UpdateSystem> getDefaultUpdateSystem(){
         return mEntityUpdator;
     }
     
-    
-    
-    ecs::DrawSystem* mEntityRender;
-    ecs::UpdateSystem* mEntityUpdator;
+    std::shared_ptr<ecs::DrawSystem2D> mEntityRender;
+    std::shared_ptr<ecs::UpdateSystem> mEntityUpdator;
     TransformSystem* mTransformSys;
 };
 
