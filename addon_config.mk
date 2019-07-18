@@ -28,7 +28,7 @@ common:
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
-	ADDON_INCLUDES = "PerigoEcs"
+	ADDON_INCLUDES = "src/PerigoEcs"
 	ADDON_INCLUDES += "src/ofw"
 
 	# any special flag that should be passed to the compiler when using this
@@ -50,11 +50,31 @@ common:
 	# in the src folders in libs and the root of the addon. if your addon needs
 	# to include files in different places or a different set of files per platform
 	# they can be specified here
-	ADDON_SOURCES = "PerigoEcs/ecs/Entity.cpp"
-	ADDON_SOURCES += "PerigoEcs/ecs/Manager.cpp"
-	ADDON_SOURCES += "PerigoEcs/ecs/System.cpp"
-	ADDON_SOURCES += "PerigoEcs/ecs/common/Drawables.cpp"
-	ADDON_SOURCES += "PerigoEcs/ecs/common/Transform.cpp"
+
+
+	#ECS ---
+	ADDON_SOURCES =  "src/PerigoEcs/ecs/Component.h"
+	ADDON_SOURCES +=  "src/PerigoEcs/ecs/Component.cpp"
+	ADDON_SOURCES +=  "src/PerigoEcs/ecs/Entity.h"
+	ADDON_SOURCES +=  "src/PerigoEcs/ecs/Entity.cpp"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/Manager.h"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/Manager.cpp"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/System.h"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/System.cpp"
+	
+	ADDON_SOURCES += "src/PerigoEcs/ecs/common/Drawables.hpp"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/common/Drawables.cpp"
+
+	ADDON_SOURCES += "src/PerigoEcs/ecs/common/TransformSystem.h"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/common/Transform.hpp"
+	ADDON_SOURCES += "src/PerigoEcs/ecs/common/Transform.cpp"
+	
+	ADDON_SOURCES += "src/ofw/Bounds.h"
+	ADDON_SOURCES += "src/ofw/ofxEcs_imgui.h"
+	ADDON_SOURCES += "src/ofw/ofxEcsMain.h"
+	ADDON_SOURCES += "src/ofw/ofxDrawTargetFbo.h"
+
+	
 	#ADDON_SOURCES += "PerigoEcs/ecs/common/Updatable.cpp"
 
 	# some addons need resources to be copied to the bin/data folder of the project
